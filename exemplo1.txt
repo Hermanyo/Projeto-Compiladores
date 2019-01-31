@@ -1,0 +1,43 @@
+code ordenar_numeros
+
+start  
+
+unalterable integer qtd = 8;
+
+integer aux;
+integer vector[qtd] vet;
+integer i, j;
+
+show("Digite uma sequência de ", qtd, " números que deseja ordenar.");
+
+considering i from 1 to qtd by 1 do
+start
+   show("Digite o ",i,"-esimo número");
+   capture(vet[i]);
+finish;
+
+considering i from 2 to qtd by 1 do
+start
+  considering j from i to by -1 do
+  start    
+    in case that (vet[j-1] > vet[j]) do
+    start 
+      aux := vet[j];
+      vet[j] := vet[j-1];
+      vet[j-1] := aux;
+    finish;
+  finish;
+finish;
+
+
+i := 0;
+
+show("Nova sequência...");
+as long as (i < qtd) do 
+start
+  show(vet[i]);
+  i := i+1;
+finish;
+
+
+finish 
