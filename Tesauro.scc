@@ -1,0 +1,88 @@
+ Helpers
+ digito = ['0' .. '9'];
+ letra_min = ['a' .. 'z'];
+ letra_mai = ['A' .. 'Z'];
+ ascii = [0x0000..0xFFFF];
+ binary = [0 .. 1];
+ espaco = ' ';
+ tab = '	';
+ rc = 13;
+ nl = 10;
+ aspas = ''';
+ 
+Tokens
+ real = 'real';
+ integer = 'integer';
+ symbol = 'symbol';
+ vector = 'vector';
+ code = 'code';
+ start = 'start';
+ finish = 'finish';
+ unalterable = 'unalterable';
+ in = 'in';
+ case = 'case';
+ that = 'that';
+ do = 'do';
+ else = 'else';
+ as = 'as';
+ long = 'long';
+ considering = 'considering';
+ from = 'from';
+ to = 'to';
+ by = 'by';
+ capture = 'capture';
+ show = 'show';
+ plus = '+';
+ minus = '-';
+ mult = '*';
+ div = '/';
+ mod = '%';
+ recebe = (':')('=');
+ recebe_const = '=';
+ greater = '>';
+ lesser = '<';
+ not = '!';
+ and = 'and';
+ or = 'or';
+ xor = 'xor';
+ twoequal = ('=')('=');
+ goe = ('>')('=');
+ loe = ('<')('=');
+ diff = ('!')('=');
+ l_par = '(';
+ r_par = ')';
+ l_com = '{';
+ r_com = '}';
+ l_col = '[';
+ r_col = ']';
+ ppv = ';';
+ vir = ',';
+ id = (letra_min|letra_mai)(letra_min|letra_mai|'_')*;
+ char = (aspas)(ascii)(aspas);
+ number = (digito+)|(('b')(digito+));
+ string = ('"')(ascii)*('"');
+ float = (digito+)'.'(digito+);
+ blank = (espaco | rc | nl | tab)+;
+ comment = ('{')(ascii)*('}');
+
+Ignored Tokens
+ blank,
+ comment;
+
+Productions 
+  exp =
+    {factor} factor 
+  | {plus} exp plus factor 
+  | {minus} exp minus factor;
+
+ factor =
+   {term} term
+  |{mult} factor mult term
+  |{div} factor div term
+  |{mod} factor mod term;
+
+ par =  l_par exp r_par;
+
+ term =
+   {number} number
+  |{par} par; 
