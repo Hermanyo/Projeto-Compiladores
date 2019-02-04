@@ -9,12 +9,12 @@
  rc = 13;
  nl = 10;
  aspas = ''';
- 
+
 Tokens
  real = 'real';
  integer = 'integer';
  symbol = 'symbol';
- vector = 'vector';
+ vector = 'vector ';
  code = 'code';
  start = 'start';
  finish = 'finish';
@@ -69,20 +69,43 @@ Ignored Tokens
  blank,
  comment;
 
-Productions 
+Productions
+  comando =
+    |var recebe ppv
+    |var recebe_const exp ppv
+    |capture l_par {var vir} var r_par ppv
+    |show l_par {exp vir} exp r_par ppv
+    |in case that l_par exp r_par do comando
+    |else comando
+    |as long as l_par exp r_par do comando
+    |considering var from exp to exp by exp do comando
+    |bloco;
   exp =
-    {factor} factor 
-  | {plus} exp plus factor 
-  | {minus} exp minus factor;
-
- factor =
-   {term} term
-  |{mult} factor mult term
-  |{div} factor div term
-  |{mod} factor mod term;
-
- par =  l_par exp r_par;
-
- term =
-   {number} number
-  |{par} par; 
+    |valor
+    |var
+    |l_par exp r_par
+    |minus exp
+    |exp plus exp
+    |exp minus exp
+    |exp mult exp
+    |exp div exp
+    |exp mod exp
+    |exp twoequal exp
+    |exp not recebe_const exp
+    |exp loe exp
+    |exp goe exp
+    |exp lesser exp
+    |exp greater exp
+    |not exp
+    |exp  and exp
+    |exp or exp
+    |exp xor exp
+    |not exp;
+  valor =
+    |char
+    |number
+    |float
+    |string;
+  var =
+    |id
+    |id l_col number r_col {l_col number r_col}
