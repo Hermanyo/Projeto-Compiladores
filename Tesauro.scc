@@ -70,6 +70,20 @@ Ignored Tokens
  comment;
 
 Productions
+  programa =
+    |code id bloco;
+  bloco =
+    |start {declaracao} {comando} finish;
+  declaracao =
+    |tipo {id vir} id ppv
+    |unalterable tipo id recebe_const valor ppv;
+  tipo-base =
+    |integer
+    |real
+    |symbol;
+  tipo =
+    |tipo-base
+    |tipo-base vector l_col exp r_col {l_col exp r_col};
   comando =
     |var recebe ppv
     |var recebe_const exp ppv
