@@ -95,9 +95,9 @@ Productions
     |considering var from exp to exp by exp do comando
     |bloco;
   exp =
-    |valor
-    |var
-    |l_par exp r_par
+    |{constant} valor
+    |{var} var
+    |[left]:l_par exp [right]:r_par
     |minus exp
     |exp plus exp
     |exp minus exp

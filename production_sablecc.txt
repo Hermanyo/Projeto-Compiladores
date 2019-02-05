@@ -1,0 +1,15 @@
+Token /* token definitions */
+  l_par = '('; r_par = ')';
+  plus = '+'; number = ['0'..'9'];
+Productions /* grammar */
+  exp = number |
+        add;
+  add = l_par exp plus exp r_par;
+
+
+Seguindo as regras do SableCC
+
+  Productions /* grammar */
+    exp = {constant} number |
+          {add} add;
+    add = l_par [left]:exp plus [right]:exp r_par;
