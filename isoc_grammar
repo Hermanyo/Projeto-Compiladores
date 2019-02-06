@@ -1,0 +1,1113 @@
+/*
+ *  C grammar based on the ISO/IEC 9899:1999 standard 
+ *  Copyright (C) 2003 Roger Keays
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this library; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * Author: Roger Keays 
+ * Date: 12 May 2003
+ * Revision: 1.0
+ * 
+ * Known Bugs:
+ *  o Does not compile with SableCC-3.0.beta.2
+ *  o Does not include any pre-processor stuff from the standard (we let the
+ *    preprocessor worry about that!)
+ *  o Line comments are allowed
+ *
+ * Change history:
+ *  21 Aug 2003 : Updated to compile with SableCC-3.beta.1
+ *  14 Aug 2003 : Added braces around production transforms
+ *  29 May 2003 : Removed danging else problem
+ */
+
+Package org.sablecc.isoc;
+
+/* regular expressions */
+Helpers
+
+	/* sensible stuff */
+	all = [0 .. 127];
+    cr = 13;
+    lf = 10;
+    tab = 9;
+	eol = cr | lf | cr lf;
+	not_eol = [all - [cr + lf]];
+	not_star = [all - '*'];
+	not_star_slash = [not_star - '/'];
+
+	/* 6.4.2.1 digit, nondigit */
+	digit = ['0' .. '9'];
+	nondigit = ['_' + [['a' .. 'z'] + ['A' .. 'Z']]];
+
+	/* 6.4.4.1 (various constants) */
+	nonzero_digit = [digit - '0'];
+	decimal_constant = nonzero_digit digit*;
+
+	octal_digit = ['0' .. '7'];
+	octal_constant = '0' octal_digit*;
+
+	hex_prefix = '0x' | '0X';
+	hex_digit = [digit + [['a' .. 'f'] + ['A' .. 'F']]];
+	hex_constant = hex_prefix hex_digit*;
+
+	unsigned_suffix = 'u' | 'U';
+	long_suffix = 'l' | 'L';
+	long_long_suffix = 'll' | 'LL';
+	integer_suffix = 
+		unsigned_suffix long_suffix? |
+		unsigned_suffix long_long_suffix |
+        long_suffix unsigned_suffix? |
+		long_long_suffix unsigned_suffix?;
+
+	/* 6.4.3 universal-character-name, hex-quad */
+	hex_quad = hex_digit hex_digit hex_digit hex_digit;
+	universal_char_name = '\u' hex_quad;
+
+	/* 6.4.2.1 identifier-nondigit */
+	identifier_nondigit = nondigit | universal_char_name;
+
+	/* 6.4.2.2 (various constants) */
+	sign = '+' | '-';
+	digit_sequence = digit+;
+	hex_digit_sequence = hex_digit+;
+	exponent_part = ('e' | 'E') sign? digit_sequence;
+	binary_exponent_part = ('p' | 'P') sign? digit_sequence;
+	floating_suffix = ('f' | 'l' | 'F' | 'L');
+
+	fractional_constant =
+		digit_sequence? '.' digit_sequence |
+		digit_sequence '.';
+
+	decimal_floating_constant =
+		fractional_constant exponent_part? floating_suffix? |
+		digit_sequence exponent_part floating_suffix?;
+
+	hex_fractional_constant = 
+		hex_digit_sequence? '.' hex_digit_sequence |
+		hex_digit_sequence '.';
+
+	hex_floating_constant =
+		hex_prefix (hex_fractional_constant | hex_digit_sequence)
+			binary_exponent_part floating_suffix?;
+
+	/* 6.4.4.1 (various constants) */
+	integer_constant = 
+		decimal_constant integer_suffix? |
+		octal_constant integer_suffix? |
+		hex_constant integer_suffix?;
+
+	/* 6.4.4.2 (various constants) */
+	floating_constant = 
+		decimal_floating_constant |
+		hex_floating_constant;
+
+	/* 6.4.4.4 (various sequences) */
+	simple_escape_seq = 
+		'\' ''' | '\"' | '\?' | '\\' | '\a' | '\b' | '\f' | '\n' |
+		'\r' | '\t' | '\v';
+
+	octal_escape_seq = '\' octal_digit octal_digit? octal_digit?;
+	hex_escape_seq = '\x' hex_digit+;
+
+	escape_seq =
+		simple_escape_seq |
+		octal_escape_seq |
+		hex_escape_seq |
+		universal_char_name;	
+
+	c_char = [all - [''' + ['\' + [cr + lf]]]] | escape_seq;
+	c_char_seq = c_char+;
+	character_constant = 'L'? ''' c_char_seq ''';
+
+	/* 6.4.5 string sequences */
+	s_char = [all - ['"' + ['\' + [cr + lf]]]] | escape_seq;
+	s_char_seq = s_char+;
+	
+/*
+ * Tokens and keywords. The ISO standard has very few tokens: just keywords,
+ * identifiers, constants, string-literals and punctuators. All the other
+ * lexical elements are best expressed as Helpers as they are never referenced
+ * in the Productions section.
+ */
+Tokens
+	
+	/* sensible stuff */
+	blank = (eol | tab | ' ')+;
+	comment = 
+		('//' not_eol* eol) |
+		('/*' not_star* '*'+ (not_star_slash not_star* '*'+)* '/');
+	
+	/* 6.4 tokens */
+	/* 6.4.1 keywords */
+	kw_auto = 'auto';
+	kw_break = 'break';
+	kw_case = 'case';
+	kw_char = 'char';
+	kw_const = 'const';
+	kw_continue = 'continue';
+	kw_default = 'default';
+	kw_do = 'do';
+	kw_double = 'double';
+	kw_else = 'else';
+	kw_enum = 'enum';
+	kw_extern = 'extern';
+	kw_float = 'float';
+	kw_for = 'for';
+	kw_goto = 'goto';
+	kw_if = 'if';
+	kw_inline = 'inline';
+	kw_int = 'int';
+	kw_long = 'long';
+	kw_register = 'register';
+	kw_restrict = 'restrict';
+	kw_return = 'return';
+	kw_short = 'short';
+	kw_signed = 'signed';
+	kw_sizeof = 'sizeof';
+	kw_static = 'static';
+	kw_struct = 'struct';
+	kw_switch = 'switch';
+	kw_typedef = 'typedef';
+	kw_union = 'union';
+	kw_unsigned = 'unsigned';
+	kw_void = 'void';
+	kw_volatile = 'volatile';
+	kw_while = 'while';
+	kw_bool = '_Bool';             /* ?! hey it's in the standard! */
+	kw_complex = '_Complex';       /* ?! hey it's in the standard! */ 
+	kw_imaginary = '_Imaginary';   /* ?! hey it's in the standard! */
+
+	/* 6.4.6 punctuators */
+	tok_lbracket = '[';
+	tok_rbracket = ']';
+	tok_lpar = '(';
+	tok_rpar = ')';
+	tok_lbrace = '{';
+	tok_rbrace = '}';
+	tok_dot = '.';
+	tok_arrow = '->';
+	tok_plus_plus = '++';
+	tok_minus_minus = '--';
+	tok_amp = '&';
+	tok_star = '*';
+	tok_plus = '+';
+	tok_minus = '-';
+	tok_tilde = '~';
+	tok_exclamation = '!';
+	tok_slash = '/';
+	tok_percent = '%';
+	tok_lshift = '<<';
+	tok_rshift = '>>';
+	tok_lt = '<';
+	tok_gt = '>';
+	tok_lt_eq = '<=';
+	tok_gt_eq = '>=';
+	tok_eq_eq = '==';
+	tok_not_eq = '!=';
+	tok_caret = '^';
+	tok_bar = '|';
+	tok_amp_amp = '&&';
+	tok_bar_bar = '||';	
+	tok_question = '?';
+	tok_colon = ':';
+	tok_semicolon = ';';
+	tok_elipsis = '...';
+	tok_eq = '=';
+	tok_star_eq = '*=';
+	tok_slash_eq = '/=';
+	tok_percent_eq = '%=';
+	tok_plus_eq = '+=';
+	tok_minus_eq = '-=';
+	tok_lshift_eq = '<<=';
+	tok_rshift_eq = '>>=';
+	tok_amp_eq = '&=';
+	tok_caret_eq = '^=';
+	tok_bar_eq = '|=';
+	tok_comma = ',';
+
+	/* ?! hey, it's in the standard! */
+	tok_hash = '#';
+	tok_hash_hash = '##';
+	tok_lt_colon = '<:';
+	tok_colon_gt = '>:';
+	tok_lt_percent = '<%';
+	tok_percent_gt = '%>';
+	tok_percent_colon = '%:';
+	tok_percent_colon_percent_colon = '%:%:';
+
+	/*
+	 * 6.4.2.1 Identifiers 
+	 * Custom lexer distinguishes between identifiers, typedef_identifier and
+	 * enumeration_constants
+	 */
+	identifier = identifier_nondigit (digit | identifier_nondigit)*;
+	typedef_identifier = identifier_nondigit (digit | identifier_nondigit)*;
+
+	/*
+	 * 6.4.4.3 enumeration-constant 
+	 * These are automatically converted to integer_constants by the custom
+	 * parser and lexer.
+	 *
+	 * enumeration_constant = ...
+	 */
+
+	/* 6.4.4 constants */
+	constant =
+		integer_constant |
+		floating_constant |
+		character_constant;
+
+
+	/* 6.4.5 string-literal */
+	string_literal = 'L'? '"' s_char_seq? '"';
+
+Ignored Tokens
+	comment,
+	blank;
+
+/* Concrete Syntax Tree */
+Productions
+
+	/* 6.9 translation-unit */
+	translation_unit = external_declaration+ 
+		{ -> New translation_unit([external_declaration]) } ;
+		
+	/* 6.9 external-declaration */
+	external_declaration =
+		{normal} declaration 
+			{ -> New external_declaration.normal(declaration) } |
+		{function} function_definition 
+			{ -> New external_declaration.function(function_definition) } ;
+
+	/* 6.9.1 function-definition */
+	function_definition =
+		declaration_specifiers declarator declaration_list? compound_statement
+		{ -> New function_definition
+			([declaration_specifiers.declaration_specifier],
+			declarator, [declaration_list.declaration], 
+			compound_statement.statement) } ;
+
+	/* 6.9.1 declaration-list */
+	declaration_list { -> declaration* } = declaration+ { -> [declaration] } ;
+	
+	/* 6.4.4 constant 
+	constant = 
+		{int} integer_constant 
+			{ -> New constant.int(integer_constant) } |
+		{float} floating_constant
+			{ -> New constant.float(floating_constant) } |
+		/* these are converted to integer_constants by the custom parser 
+		{enum} enumeration_constant 
+			{ -> New constant.enum(enumeration_constant) } | 
+		{char} character_constant
+			{ -> New constant.char(character_constant) } ;
+	*/
+
+	/* 6.5.1 primary-expression */
+	primary_expression { -> expression } =
+		{identifier} identifier { -> New expression.identifier(identifier) } |
+		{constant} constant { -> New expression.constant(constant) } |
+		{string} string_literal { -> New expression.string(string_literal) } |
+		{expression} tok_lpar expression tok_rpar 
+			{ -> expression.single_list } ;
+
+	/* 6.5.2 postfix-expression */
+	postfix_expression { -> expression } =
+		{primary} primary_expression { -> primary_expression.expression } |
+		{array} postfix_expression tok_lbracket expression tok_rbracket 
+			{ -> New expression.array(postfix_expression.expression, 
+				expression.single_list) } |
+		{function} postfix_expression tok_lpar argument_expression_list? 
+				tok_rpar 
+			{ -> New expression.function(postfix_expression.expression, 
+				[argument_expression_list.expression]) } |
+		{struct} postfix_expression tok_dot identifier 
+			{ -> New expression.struct(postfix_expression.expression,
+				identifier) } |
+		{lookup} postfix_expression tok_arrow identifier 
+			{ -> New expression.lookup(postfix_expression.expression, 
+				identifier) } |
+		{increment} postfix_expression tok_plus_plus 
+			{ -> New expression.increment(postfix_expression.expression) } |
+		{decrement} postfix_expression tok_minus_minus 
+			{ -> New expression.decrement(postfix_expression.expression) } |
+		{initialize1} tok_lpar type_name tok_rpar tok_lbrace initializer_list
+				tok_rbrace { -> New expression.initialize(type_name,
+				[initializer_list.initializer]) } |
+		{initialize2} tok_lpar type_name tok_rpar tok_lbrace initializer_list
+				tok_comma tok_rbrace { -> New expression.initialize(type_name,
+				[initializer_list.initializer]) } ;
+	
+	/* 6.5.2 argument-expression-list */
+	argument_expression_list { -> expression* } =
+		{single} assignment_expression 
+			{ -> [assignment_expression.expression] } |
+		{list} argument_expression_list tok_comma assignment_expression 
+			{ -> [argument_expression_list.expression
+				assignment_expression.expression] } ;
+
+	/* 6.5.3 unary-expression */
+	unary_expression { -> expression } = 
+		{postfix} postfix_expression { -> postfix_expression.expression } |
+		{increment} tok_plus_plus unary_expression 
+			{ -> New expression.increment(unary_expression.expression) } |
+		{decrement} tok_minus_minus unary_expression 
+			{ -> New expression.decrement(unary_expression.expression) } |
+		{unary} unary_operator cast_expression 
+			{ -> New expression.unary(unary_operator,
+				cast_expression.expression) } |
+		{sizeof} kw_sizeof unary_expression 
+			{ -> New expression.sizeof(unary_expression.expression) } |
+		{sizeof_type} kw_sizeof tok_lpar type_name tok_rpar
+			{ -> New expression.sizeof_type(type_name) } ;
+
+	/* 6.5.3 unary-operator */
+	unary_operator =
+		{address} tok_amp { -> New unary_operator.address() } |
+		{dereference} tok_star { -> New unary_operator.dereference() } |
+		{positive} tok_plus { -> New unary_operator.positive() } |
+		{negative} tok_minus { -> New unary_operator.negative() } |
+		{inverse} tok_tilde { -> New unary_operator.inverse() } |
+		{not} tok_exclamation { -> New unary_operator.not() } ;
+
+
+	/* 6.5.4 cast-expression */
+	cast_expression { -> expression } =
+		{no} unary_expression { -> unary_expression.expression } |
+		{cast} tok_lpar type_name tok_rpar cast_expression
+			{ -> New expression.cast(type_name,
+				cast_expression.expression) } ;
+
+	/* 6.5.5 multiplicative-expression */
+	multiplicative_expression { -> expression } = 
+		{no} cast_expression { -> cast_expression.expression } |
+		{mult} multiplicative_expression tok_star cast_expression 
+			{ -> New expression.multiply(multiplicative_expression.expression,
+				cast_expression.expression) } |
+		{divide} multiplicative_expression tok_slash cast_expression 
+			{ -> New expression.divide(multiplicative_expression.expression, 
+				cast_expression.expression) } |
+		{mod} multiplicative_expression tok_percent cast_expression
+			{ -> New expression.mod(multiplicative_expression.expression,
+				cast_expression.expression) } ;
+
+	/* 6.5.6 additive-expression */
+	additive_expression { -> expression } =
+		{no} multiplicative_expression 
+			{ -> multiplicative_expression.expression } |
+		{plus} additive_expression tok_plus multiplicative_expression 
+			{ -> New expression.plus(additive_expression.expression,
+				multiplicative_expression.expression) } |
+		{minus} additive_expression tok_minus multiplicative_expression
+			{ -> New expression.minus(additive_expression.expression,
+				multiplicative_expression.expression) } ;
+
+	/* 6.5.7 shift-expression */
+	shift_expression { -> expression } =
+		{no} additive_expression { -> additive_expression.expression } |
+		{lshift} shift_expression tok_lshift additive_expression 
+			{ -> New expression.lshift(shift_expression.expression,
+				additive_expression.expression) } |
+		{rshift} shift_expression tok_rshift additive_expression
+			{ -> New expression.rshift(shift_expression.expression,
+				additive_expression.expression) } ;
+ 
+	/* 6.5.8 relational-expression */
+	relational_expression { -> expression } =
+		{no} shift_expression { -> shift_expression.expression } |
+		{lt} relational_expression tok_lt shift_expression 
+			{ -> New expression.lt(relational_expression.expression,
+				shift_expression.expression) } |
+		{gt} relational_expression tok_gt shift_expression 
+			{ -> New expression.gt(relational_expression.expression,
+				shift_expression.expression) } |
+		{lt_eq} relational_expression tok_lt_eq shift_expression 
+			{ -> New expression.lt_eq(relational_expression.expression,
+				shift_expression.expression) } |
+		{gt_eq} relational_expression tok_gt_eq shift_expression
+			{ -> New expression.gt_eq(relational_expression.expression,
+				shift_expression.expression) } ;
+
+	/* 6.5.9 equality-expression */
+	equality_expression { -> expression } =
+		{no} relational_expression { -> relational_expression.expression } |
+		{eq_eq} equality_expression tok_eq_eq relational_expression 
+			{ -> New expression.eq_eq(equality_expression.expression,
+				relational_expression.expression) } |
+		{not_eq} equality_expression tok_not_eq relational_expression
+			{ -> New expression.not_eq(equality_expression.expression,
+				relational_expression.expression) } ;
+
+	/* 6.5.10 AND-expression */
+	and_expression { -> expression } = 
+		{no} equality_expression { -> equality_expression.expression } |
+		{and} and_expression tok_amp equality_expression
+			{ -> New expression.bitwise_and(and_expression.expression,
+				equality_expression.expression) } ;
+
+	/* 6.5.11 exclusive-OR-expression */
+	exclusive_or_expression { -> expression } = 
+		{no} and_expression { -> and_expression.expression } |
+		{xor} exclusive_or_expression tok_caret and_expression
+			{ -> New expression.bitwise_xor(exclusive_or_expression.expression,
+				and_expression.expression) } ;
+
+	/* 6.5.12 inclusive-OR-expression */
+	inclusive_or_expression { -> expression } =
+		{no} exclusive_or_expression { -> exclusive_or_expression.expression } |
+		{or} inclusive_or_expression tok_bar exclusive_or_expression
+			{ -> New expression.bitwise_or(inclusive_or_expression.expression,
+				exclusive_or_expression.expression) } ;
+
+	/* 6.5.13 logical-AND-expression */
+	logical_and_expression { -> expression } =
+		{no} inclusive_or_expression { -> inclusive_or_expression.expression } |
+		{and} logical_and_expression tok_amp_amp inclusive_or_expression
+			{ -> New expression.logical_and(logical_and_expression.expression,
+				inclusive_or_expression.expression) } ;
+
+	/* 6.5.14 logical-OR-expression */
+	logical_or_expression { -> expression } =
+		{no} logical_and_expression { -> logical_and_expression.expression } |
+		{or} logical_or_expression tok_bar_bar logical_and_expression
+			{ -> New expression.logical_or(logical_or_expression.expression,
+				logical_and_expression.expression) } ;
+
+	/* 6.5.15 conditional-expression */
+	conditional_expression { -> expression } =
+		{no} logical_or_expression { -> logical_or_expression.expression } |
+		{cond} logical_or_expression tok_question expression tok_colon
+				conditional_expression 
+				{ -> New expression.conditional
+					(logical_or_expression.expression,
+					expression.single_list, 
+					conditional_expression.expression) } ;
+
+	/* 6.5.16 assignment-expression */
+	assignment_expression { -> expression } =
+		{no} conditional_expression { -> conditional_expression.expression } |
+		{assign} unary_expression assignment_operator assignment_expression
+			{ -> New expression.assignment(unary_expression.expression,
+				assignment_operator, assignment_expression.expression) } ;
+
+	/* 6.5.16 assignment-operator */
+	assignment_operator =
+		{eq} tok_eq { -> New assignment_operator.eq() } |
+		{multiply_eq} tok_star_eq { -> New assignment_operator.multiply_eq() } |
+		{divide_eq} tok_slash_eq { -> New assignment_operator.divide_eq() } |
+		{mod_eq} tok_percent_eq { -> New assignment_operator.mod_eq() } |
+		{plus_eq} tok_plus_eq { -> New assignment_operator.plus_eq() } |
+		{minus_eq} tok_minus_eq { -> New assignment_operator.minus_eq() } |
+		{lshift_eq} tok_lshift_eq { -> New assignment_operator.lshift_eq() } |
+		{rshift_eq} tok_rshift_eq { -> New assignment_operator.rshift_eq() } |
+		{and_eq} tok_amp_eq { -> New assignment_operator.and_eq() } |
+		{xor_eq} tok_caret_eq { -> New assignment_operator.xor_eq() } |
+		{or_eq} tok_bar_eq { -> New assignment_operator.or_eq() } ;
+	
+	/* 6.5.17 expression 
+	 *
+	 * this node is transformed into a list of expressions and also a single
+ 	 * expression of type list, so either can be used for convenience
+	 */
+	expression { -> [long_list]:expression* [single_list]:expression } =
+		{no} assignment_expression 
+			{ -> [assignment_expression.expression] 
+			New expression.list([assignment_expression.expression]) } |
+		{list} expression tok_comma assignment_expression
+			{ -> [expression.long_list assignment_expression.expression] 
+			New expression.list
+			([assignment_expression.expression expression.long_list]) } ;
+
+	/* 6.6 constant-expression */
+	constant_expression { -> expression } = conditional_expression 
+		{ -> conditional_expression.expression } ;
+
+	/* 6.7 declaration */
+	declaration = declaration_specifiers init_declarator_list? tok_semicolon 
+		{ -> New declaration([declaration_specifiers.declaration_specifier],
+			[init_declarator_list.init_declarator]) } ;
+
+	/* 6.7 declaration-specifiers */
+	declaration_specifiers { -> declaration_specifier* } =
+		{storage} storage_class_specifier declaration_specifiers? 
+			{ -> [New declaration_specifier.storage(storage_class_specifier)
+				declaration_specifiers.declaration_specifier] } |
+		{type_specifier} type_specifier declaration_specifiers? 
+			{ -> [New declaration_specifier.type_specifier(type_specifier)
+				declaration_specifiers.declaration_specifier] } |
+		{type_qualifier} type_qualifier declaration_specifiers? 
+			{ -> [New declaration_specifier.type_qualifier(type_qualifier)
+				declaration_specifiers.declaration_specifier] } |
+		{function} function_specifier declaration_specifiers? 
+			{ -> [New declaration_specifier.function()
+				declaration_specifiers.declaration_specifier] } ;
+
+	/* 6.7 init-declarator-list */
+	init_declarator_list { -> init_declarator* } =
+		{single} init_declarator { -> [init_declarator] } |
+		{list} init_declarator_list tok_comma init_declarator 
+			{ -> [init_declarator_list.init_declarator init_declarator] } ;
+
+	/* 6.7 init-declarator */
+	init_declarator =
+		{plain} declarator { -> New init_declarator(declarator, Null) } |
+		{assign} declarator tok_eq initializer 
+			{ -> New init_declarator(declarator, initializer) } ;
+
+	/* 6.7.1 storage-class-specifier */
+	storage_class_specifier =
+		{typedef} kw_typedef { -> New storage_class_specifier.typedef() } |
+		{extern} kw_extern { -> New storage_class_specifier.extern() } |
+		{static} kw_static { -> New storage_class_specifier.static() } |
+		{auto} kw_auto { -> New storage_class_specifier.auto() } |
+		{register} kw_register { -> New storage_class_specifier.register() } ;
+
+	/* 6.7.2 type-specifier */
+	type_specifier =
+		{void} kw_void { -> New type_specifier.void() } |
+		{char} kw_char { -> New type_specifier.char() } |
+		{short} kw_short { -> New type_specifier.short() } |
+		{int} kw_int { -> New type_specifier.int() } |
+		{long} kw_long { -> New type_specifier.long() } |
+		{float} kw_float { -> New type_specifier.float() } |
+		{double} kw_double { -> New type_specifier.double() } |
+		{signed} kw_signed { -> New type_specifier.signed() } |
+		{unsigned} kw_unsigned { -> New type_specifier.unsigned() } |
+		{bool} kw_bool { -> New type_specifier.bool() } |
+		{complex} kw_complex { -> New type_specifier.complex() } |
+		{imaginary} kw_imaginary { -> New type_specifier.imaginary() } |
+		{struct_or_union} struct_or_union_specifier 
+			{ -> struct_or_union_specifier.type_specifier } |
+		{enum} enum_specifier { -> enum_specifier.type_specifier } |
+		{typedef} typedef_name { -> typedef_name.type_specifier } ;
+
+	/* 6.7.2.1 struct-or-union-specifier */
+	struct_or_union_specifier { -> type_specifier } =
+		{struct1} kw_struct identifier? tok_lbrace struct_declaration_list
+				 tok_rbrace 
+				{ -> New type_specifier.struct(identifier,
+					[struct_declaration_list.declaration]) } |
+		{struct2} kw_struct identifier
+				{ -> New type_specifier.struct(identifier, []) } |
+		{union1} kw_union identifier? tok_lbrace struct_declaration_list
+				tok_rbrace 
+				{ -> New type_specifier.union(identifier,
+					[struct_declaration_list.declaration]) } |
+		{union2} kw_union identifier
+				{ -> New type_specifier.union(identifier, []) } ;
+
+	/*
+	 * 6.7.2.1 struct-or-union  (not used in this grammar. I have instead made
+ 	 * separate alternatives for structs and unions above)
+	 *
+	 * struct_or_union =
+	 *	{struct} kw_struct } |
+	 *	{union} kw_union } ;
+ 	 */
+
+	/* 6.7.2.1 struct-declaration-list */
+	struct_declaration_list { -> declaration* } = struct_declaration+ 
+		{ -> [struct_declaration.declaration] } ;
+
+	/* 6.7.2.1 struct-declaration */
+	struct_declaration { -> declaration } = 
+		specifier_qualifier_list struct_declarator_list tok_semicolon
+			{ ->  New declaration
+				([specifier_qualifier_list.declaration_specifier],
+				[struct_declarator_list.init_declarator]) } ;
+		
+	/* 6.7.2.1 specifier-qualifier-list */
+	specifier_qualifier_list { -> declaration_specifier* } =
+		{spec_first} type_specifier specifier_qualifier_list? 
+			{ -> [New declaration_specifier.type_specifier(type_specifier)
+				specifier_qualifier_list.declaration_specifier] } |
+		{qual_first} type_qualifier specifier_qualifier_list? 
+			{ -> [New declaration_specifier.type_qualifier(type_qualifier)
+				specifier_qualifier_list.declaration_specifier] } ;
+
+	/* 6.7.2.1 struct-declarator-list */
+	struct_declarator_list { -> init_declarator* } =
+		{single} struct_declarator { -> [struct_declarator.init_declarator] } |
+		{list} struct_declarator_list tok_comma struct_declarator 
+			{ -> [struct_declarator_list.init_declarator
+				struct_declarator.init_declarator] } ;
+
+	/* 6.7.2.1 struct-declarator */
+	struct_declarator { -> init_declarator } =
+		{plain} declarator { -> New init_declarator(declarator, Null) } |
+		{with_const} declarator? tok_colon constant_expression
+			{ -> New init_declarator(declarator, New
+				initializer.expression(constant_expression.expression)) } ;
+
+	/* 6.7.2.2 enum-specifier */
+	enum_specifier { -> type_specifier } =
+		{values1} kw_enum identifier? tok_lbrace enumerator_list tok_rbrace 
+			{ -> New type_specifier.enum(identifier, 
+				[enumerator_list.enumerator]) } |
+		{values2} kw_enum identifier? tok_lbrace enumerator_list tok_comma 
+				tok_rbrace 
+			{ -> New type_specifier.enum(identifier, 
+				[enumerator_list.enumerator]) } |
+		{novalues} kw_enum identifier
+			{ -> New type_specifier.enum(identifier, []) } ;
+
+	/* 6.7.2.2 enumerator-list */
+	enumerator_list { -> enumerator* } =
+		{single} enumerator { -> [enumerator] } |
+		{list} enumerator_list tok_comma enumerator 
+			{ -> [enumerator_list.enumerator enumerator] } ;
+
+	/* 6.7.2.2 enumerator */
+	enumerator =
+		{plain} identifier 
+			{ -> New enumerator(identifier, Null) } |
+		{assign} identifier tok_eq constant_expression
+			{ -> New enumerator(identifier, 
+				constant_expression.expression) } ;
+
+	/* 6.7.3 type-qualifier */
+	type_qualifier =
+		{const} kw_const { -> New type_qualifier.const() } |
+		{restrict} kw_restrict { -> New type_qualifier.restrict() } |
+		{volatile} kw_volatile { -> New type_qualifier.volatile() } ;
+
+	/* 6.7.4 function-specifier */
+	function_specifier { -> declaration_specifier } = kw_inline
+		{ -> New declaration_specifier.function() } ;
+
+	/* 6.7.5 declarator */
+	declarator = pointer? direct_declarator
+		{ -> New declarator([pointer.pointer],
+			direct_declarator.direct_declarator) } ;
+
+	/* 6.7.5 direct-declarator */
+	direct_declarator =
+		{ident} identifier 
+			{ -> New direct_declarator.identifier(identifier) } |
+		{nested} tok_lpar declarator tok_rpar 
+			{ -> New direct_declarator.nested(declarator) } |
+		{array1} direct_declarator tok_lbracket type_qualifier_list?	
+				assignment_expression? tok_rbracket 
+			{ -> New direct_declarator.array(direct_declarator,
+				[type_qualifier_list.type_qualifier],
+				assignment_expression.expression, Null, Null) } |
+		{array2} direct_declarator tok_lbracket kw_static type_qualifier_list?	
+				assignment_expression tok_rbracket 
+			{ -> New direct_declarator.array(direct_declarator,
+				[type_qualifier_list.type_qualifier],
+				assignment_expression.expression, kw_static, Null) } |
+		{array3} direct_declarator tok_lbracket type_qualifier_list kw_static
+				assignment_expression tok_rbracket 
+			{ -> New direct_declarator.array(direct_declarator,
+				[type_qualifier_list.type_qualifier],
+				assignment_expression.expression, kw_static, Null) } |
+		{array4} direct_declarator tok_lbracket type_qualifier_list? tok_star
+				tok_rbracket 
+			{ -> New direct_declarator.array(direct_declarator,
+				[type_qualifier_list.type_qualifier],
+				Null, Null, tok_star) } |
+		{parameters1} direct_declarator tok_lpar parameter_type_list tok_rpar 
+			{ -> New direct_declarator.declared_parameters(direct_declarator,
+				[parameter_type_list.declaration]) } |
+		{parameters2} direct_declarator tok_lpar identifier_list? tok_rpar
+			{ -> New direct_declarator.identified_parameters(direct_declarator,
+				[identifier_list.identifier]) } ;
+
+	/* 6.7.5 pointer */
+	pointer { -> pointer* } =
+		{single} tok_star type_qualifier_list? 
+			{ -> [New pointer([type_qualifier_list.type_qualifier])] } |
+		{recursive} tok_star type_qualifier_list? pointer
+			{ -> [New pointer([type_qualifier_list.type_qualifier]) 
+				pointer.pointer] } ;
+
+	/* 6.7.5 type-qualifier-list */
+	type_qualifier_list { -> type_qualifier* } = 
+		type_qualifier+ { -> [type_qualifier] } ;
+
+	/* 6.7.5 parameter-type-list */
+	parameter_type_list { -> declaration* } =
+		{plain} parameter_list { -> [parameter_list.declaration] } |
+		{elipsis} parameter_list tok_comma tok_elipsis
+			{ -> [parameter_list.declaration New declaration.elipsis()] } ;
+
+	/* 6.7.5 parameter-list */
+	parameter_list { -> declaration* } = 
+		{single} parameter_declaration 
+			{ -> [parameter_declaration.declaration] } |
+		{list} parameter_list tok_comma parameter_declaration
+			{ -> [parameter_list.declaration 
+				parameter_declaration.declaration] } ;
+
+	/* 6.7.5 parameter-declaration */
+	parameter_declaration { -> declaration } =
+		{plain} declaration_specifiers declarator 
+			{ -> New declaration([declaration_specifiers.declaration_specifier],
+				[New init_declarator(declarator, Null)]) } |
+		{abstract} declaration_specifiers abstract_declarator?
+			{ -> New declaration([declaration_specifiers.declaration_specifier],
+				[New init_declarator(abstract_declarator.declarator, Null)]) } ;
+
+	/* 6.7.5 identifier-list */
+	identifier_list { -> identifier* } =
+		{single} identifier { -> [identifier] } |
+		{list} identifier_list tok_comma identifier
+			{ -> [identifier_list.identifier identifier] } ;
+
+	/* 6.7.6 type-name */
+	type_name = specifier_qualifier_list abstract_declarator?
+		{ -> New type_name([specifier_qualifier_list.declaration_specifier],
+			abstract_declarator.declarator) } ;
+		
+	/* 6.7.6 abstract-declarator */
+	abstract_declarator { -> declarator } =
+		{pointer} pointer { -> New declarator([pointer.pointer], Null) } |
+		{direct} pointer? direct_abstract_declarator
+			{ -> New declarator([pointer.pointer],
+				direct_abstract_declarator.direct_declarator) } ;
+
+	/* 6.7.6 direct-abstract-declarator */
+	direct_abstract_declarator { -> direct_declarator } =
+		{par} tok_lpar abstract_declarator tok_rpar 
+			{ -> New direct_declarator.abstract_nested
+				(abstract_declarator.declarator) } |
+		{array1} direct_abstract_declarator? tok_lbracket
+				assignment_expression? tok_rbracket 
+			{ -> New direct_declarator.abstract_array
+				(direct_abstract_declarator.direct_declarator,
+				assignment_expression.expression, Null) } |
+		{array2} direct_abstract_declarator? tok_lbracket tok_star
+				tok_rbracket 
+			{ -> New direct_declarator.abstract_array
+				(direct_abstract_declarator.direct_declarator,
+				Null, tok_star) } |
+		{parameters} direct_abstract_declarator? tok_lpar parameter_type_list?
+				tok_rpar
+			{ -> New direct_declarator.abstract_parameters
+				(direct_abstract_declarator.direct_declarator,
+				parameter_type_list.declaration) } ;
+
+	/* 6.7.7 typedef-name */
+	typedef_name { -> type_specifier } = typedef_identifier 
+		{ -> New type_specifier.typedef(typedef_identifier) } ;
+
+	/* 6.7.8 initializer */
+	initializer { -> initializer } =
+		{expression} assignment_expression 
+			{ -> New initializer.expression
+				(assignment_expression.expression) } |
+		{block1} tok_lbrace initializer_list tok_rbrace 
+			{ -> New initializer.block([initializer_list.initializer]) } |
+		{block2} tok_lbrace initializer_list tok_comma tok_rbrace
+			{ -> New initializer.block([initializer_list.initializer]) } ;
+
+	/* 6.7.8 initializer-list */
+	initializer_list { -> initializer* } =
+		{single} designation? initializer 
+			{ -> [New initializer.part([designation.designator],
+				initializer.initializer)] } |
+		{list} initializer_list tok_comma designation? initializer
+			{ -> [initializer_list.initializer
+				New initializer.part([designation.designator],
+				initializer.initializer)] } ;
+
+	/* 6.7.8 designation */
+	designation { -> designator* } = designator_list tok_eq
+		{ -> [designator_list.designator] } ;
+
+	/* 6.7.8 designator-list */
+	designator_list { -> designator* } = designator+ { -> [designator] } ;
+
+	/* 6.7.8 designator */
+	designator =
+		{brackets} tok_lbracket constant_expression tok_rbracket 
+			{ -> New designator.array(constant_expression.expression) } |
+		{dot} tok_dot identifier
+			{ -> New designator.struct(identifier) } ;
+	/*
+	 * 6.8 statement 
+	 * non-standard... this is separated into two to remove the dangling else
+ 	 * problem 
+	 */
+	statement =
+		{no_dangling} no_dangling_statement 
+			{ -> no_dangling_statement.statement } |
+		{dangling} dangling_statement 
+			{ -> dangling_statement.statement } ;
+
+	/* productions NOT ending in 'statement' */
+	no_dangling_statement { -> statement } =
+		{comp} compound_statement { -> compound_statement.statement } |
+		{exp} expression_statement { -> expression_statement.statement } |
+		{jmp} jump_statement { -> jump_statement.statement } |
+		{ifelse} kw_if tok_lpar expression tok_rpar no_dangling_statement 
+			kw_else [other]:no_dangling_statement 
+			{ -> New statement.ifelse(expression.single_list, 
+				no_dangling_statement.statement, other.statement) } ;
+ 
+	/* productions ending in 'statement' */
+	dangling_statement { -> statement } =
+		{label} labeled_statement { -> labeled_statement.statement } |
+		{select} selection_statement { -> selection_statement.statement } |
+		{iter} iteration_statement { -> iteration_statement.statement } ;
+
+	/* 6.8.1 labeled-statement */
+	labeled_statement { -> statement } = 
+		{plain} identifier tok_colon statement 
+			{ -> New statement.labeled(identifier, statement) } |
+		{case} kw_case constant_expression tok_colon statement 
+			{ -> New statement.case(constant_expression.expression, 
+				statement) } |
+		{default} kw_default tok_colon statement 
+			{ -> New statement.default(statement) } ;
+		
+	/* 6.8.2 compound-statement */
+	compound_statement { -> statement } = tok_lbrace block_item_list? tok_rbrace
+		{ -> New statement.compound([block_item_list.statement]) } ;
+
+	/* 6.8.2 block-item-list */
+	block_item_list { -> statement* } = block_item+ 
+		{ -> [block_item.statement] } ;
+
+	/* 6.8.2 block-item */
+	block_item { -> statement } =
+		{decl} declaration { -> New statement.declaration(declaration) } |
+		{statement} statement { -> statement } ;
+
+	/* 6.8.3 expression-statement */
+	expression_statement { -> statement } = expression? tok_semicolon
+		{ -> New statement.expression([expression.long_list]) } ;
+
+	/* 6.8.4 selection-statment */
+	selection_statement { -> statement } =
+		{if} kw_if tok_lpar expression tok_rpar statement 
+			{ -> New statement.if(expression.single_list, statement) } |
+		{ifelse} kw_if tok_lpar expression tok_rpar no_dangling_statement 
+			kw_else [other]:dangling_statement 
+			{ -> New statement.ifelse(expression.single_list,
+				no_dangling_statement.statement, other.statement) } |
+		{switch} kw_switch tok_lpar expression tok_rpar statement
+			{ -> New statement.switch(expression.single_list, statement) } ;
+		
+	/* 6.8.5 iteration-statement */
+	iteration_statement { -> statement } =
+		{while} kw_while tok_lpar expression tok_rpar statement 
+			{ -> New statement.while(expression.single_list, statement) } |
+		{do} kw_do statement kw_while tok_lpar expression tok_rpar 
+			tok_semicolon 
+			{ -> New statement.do(statement, expression.single_list) } |
+		{for} kw_for tok_lpar [declaration]:expression? [a]:tok_semicolon 
+			[condition]:expression?  [b]:tok_semicolon [iteration]:expression? 
+			tok_rpar statement 
+			{ -> New statement.for(declaration.single_list, 
+				condition.single_list, iteration.single_list, statement) } |
+		{for_decl} kw_for tok_lpar declaration [condition]:expression? 
+			tok_semicolon [iteration]:expression? tok_rpar statement 
+			{ -> New statement.for_decl(declaration, condition.single_list,
+				iteration.single_list, statement) } ;
+
+	/* 6.8.6 jump-statement */
+	jump_statement { -> statement } =
+		{goto} kw_goto identifier tok_semicolon 
+			{ -> New statement.goto(identifier) } |
+		{continue} kw_continue tok_semicolon 
+			{ -> New statement.continue() } |
+		{break} kw_break tok_semicolon 
+			{ -> New statement.break() } |
+		{return} kw_return expression? tok_semicolon
+			{ -> New statement.return(expression.single_list) } ;
+
+/* Abstract Syntax Tree */
+Abstract Syntax Tree 
+
+	translation_unit = external_declaration* ;
+
+	external_declaration = 
+		{normal} declaration |
+		{function} function_definition ;
+
+	/*
+	 * declaration_specifier is void/char/static... etc, but does not have
+ 	 * pointer or array information. That is in the declarator.
+	 */
+	function_definition = declaration_specifier* declarator 
+		[param_definitions]:declaration* statement ;
+
+	/*
+	 * it is possible to have multiple init-declarators. e.g. in 
+	 * statements like int x = 3, y = 5; 
+	 * 
+	 * the elipsis alternative is a special case used to represent the ...
+	 * parameter.
+	 */
+	declaration = 
+		declaration_specifier* init_declarator* |
+		{elipsis} ;
+	/*
+	 * an init_declarator is usually just name/expression, but may also have
+	 * pointer/array information (in the declarator) and complex initializer
+	 * (e.g. values in an array or struct).
+	 */
+	init_declarator = declarator initializer ;
+	
+	/*
+	 * a declaration_specifier describes the type (except pointer/array
+	 * information.
+	 */
+	declaration_specifier = 
+		{storage} storage_class_specifier |
+		{type_specifier} type_specifier |
+		{type_qualifier} type_qualifier |
+		{function} ; /* (inline) */
+
+	/* this is the same as the CST */
+	storage_class_specifier = {typedef} | {extern} | {static} | {auto} |
+		{register} ;
+
+	/* same as CST, except unions and struct are given separate nodes */
+	type_specifier = {void} | {char} | {short} | {int} | {long} |
+		{float} | {double} | {signed} | {unsigned} | {bool} | {complex} |
+		{imaginary} |
+		{struct} [name]:identifier [members]:declaration* | 
+		{union} [name]:identifier [members]:declaration* | 
+		{enum} [name]:identifier enumerator* |
+		{typedef} typedef_identifier ; 
+
+	enumerator = identifier expression ;
+
+	/* same as CST */
+	type_qualifier = {const} | {restrict} | {volatile} ;
+
+	/*
+	 * a declarator may be a pointer and a pointer to a pointer etc... hence the
+	 * [pointer] list. Likewise, a list is used for array declarators (enabling
+	 * multidimension arrays).  The ISO grammar (6.7.5) allows a declarator to
+	 * be a child of a direct_declarator... presumably this is for stuff like
+	 * pointers to functions. This is why you see 'declarator*' here.
+	 */
+	declarator = pointer* direct_declarator ;
+
+	direct_declarator =
+		{identifier} identifier |
+		{nested} declarator |
+		{abstract_nested} declarator |
+		{array} direct_declarator type_qualifier* expression kw_static 
+			tok_star |
+		{abstract_array} direct_declarator expression tok_star |
+		{declared_parameters} direct_declarator [parameters]:declaration* |
+		{identified_parameters} direct_declarator [parameters]:identifier* |
+		{abstract_parameters} direct_declarator [parameters]:declaration* ;
+
+	pointer = type_qualifier* ;
+
+	/* type_name is used for casts */
+	type_name = declaration_specifier* declarator ;
+
+	/*
+	 * initializer can be a simple expression, or if used to initialize an
+	 * array, struct or union a designator may be required. Initializers may
+	 * also be nested inside other initializers in the case of defining
+	 * multi-demensional arrays / structs / unions.
+	 */
+	initializer = 
+		{part} designator* initializer |
+		{expression} [value]:expression |
+		{block} [values]:initializer* ;
+
+	/* two designations: one for arrays and another for structs/unions */
+	designator = 
+		{array} [index]:expression |
+		{struct} [member]:identifier ;
+
+	statement =
+		{declaration} declaration |
+		{expression} expression* |
+		{labeled} identifier statement |
+		{compound} statement* |
+
+		/* if blocks */
+		{if} [condition]:expression statement |
+		{ifelse} [condition]:expression statement [else]:statement |
+
+		/* for switch blocks */
+		{switch} [condition]:expression statement |
+		{case} [case]:expression statement |
+		{default} statement |
+		
+		/* iteration blocks */
+		{while} [condition]:expression statement |
+		{do} statement [condition]:expression |
+		{for} [declaration]:expression [condition]:expression
+			 [iteration]:expression statement |
+		{for_decl} declaration [condition]:expression
+			 [iteration]:expression statement |
+
+		/* control statements */
+		{goto} [destination]:identifier |
+		{continue} |
+		{break} |
+		{return} expression ;
+
+	/* 
+	 * expression nodes: all the precedence is done by the CST! The choice here
+	 * was whether to have few nodes and use an 'operator' element, or
+	 * distinguish between operators by using a separate node type for each
+	 * operation. I have gone for (mostly) the latter except for assignment and
+	 * unary expressions.
+	 */
+	expression = 
+		{list} expression* |
+		{assignment} [lhs]:expression assignment_operator [rhs]:expression |
+		{conditional} [condition]:expression [true]:expression 
+			[false]:expression |
+		{logical_or} [lhs]:expression [rhs]:expression |
+		{logical_and} [lhs]:expression [rhs]:expression |
+		{bitwise_or} [lhs]:expression [rhs]:expression |
+		{bitwise_and} [lhs]:expression [rhs]:expression |
+		{bitwise_xor} [lhs]:expression [rhs]:expression |
+		{not_eq} [lhs]:expression [rhs]:expression |
+		{eq_eq} [lhs]:expression [rhs]:expression |
+		{lt} [lhs]:expression [rhs]:expression |
+		{gt} [lhs]:expression [rhs]:expression |
+		{lt_eq} [lhs]:expression [rhs]:expression |
+		{gt_eq} [lhs]:expression [rhs]:expression |
+		{rshift} [lhs]:expression [rhs]:expression |
+		{lshift} [lhs]:expression [rhs]:expression |
+		{minus} [lhs]:expression [rhs]:expression |
+		{plus} [lhs]:expression [rhs]:expression |
+		{mod} [lhs]:expression [rhs]:expression |
+		{divide} [lhs]:expression [rhs]:expression |
+		{multiply} [lhs]:expression [rhs]:expression |
+		{cast} type_name expression |
+		{sizeof} expression |
+		{sizeof_type} type_name |
+		{unary} unary_operator expression |
+		{array} [array]:expression [index]:expression | /* for referencing arrays */
+		{function} [function]:expression [parameters]: expression* | /* for calling functions */
+		{struct} [member]:expression identifier | /* for referencing struct/union members */
+		{lookup} [member]:expression identifier | /* for dereferencing struct/union members */
+		{increment} expression | /* pre or post (CST handles order) */
+		{decrement} expression | /* pre or post (CST handles order) */
+		{initialize} type_name initializer* | /* ??.. see 6.5.2 */
+		{identifier} identifier |
+		{constant} constant |
+		{string} string_literal ;
+
+	unary_operator = {address} | {dereference} | {positive} | {negative} |
+		{inverse} | {not} ;
+
+	assignment_operator = {eq} | {multiply_eq} | {divide_eq} | {mod_eq} |
+		{plus_eq} | {minus_eq} | {lshift_eq} | {rshift_eq} | {and_eq} |
+		{xor_eq} | {or_eq} ;
