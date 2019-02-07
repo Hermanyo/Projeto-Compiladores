@@ -59,7 +59,7 @@ Tokens
  vir = ',';
  id = (letra_min|letra_mai)(letra_min|letra_mai|'_')*;
  char = (aspas)(ascii)(aspas);
- number = (digito+)|(('b')(digito+));
+ number = digito+;//(digito+)|(('b')(digito+));
  string = ('"')(ascii)*('"');
  float = (digito+)'.'(digito+);
  blank = (espaco | rc | nl | tab)+;
@@ -71,28 +71,80 @@ Ignored Tokens
  
  
 Productions  
+programa =
+    {code} code id bloco;
+bloco =
+    {bloco} start declaracao* comando* finish;
+
+inicialize = recebe_const valor;
+declaracao =
+     {tipo} tipo multi_id* id ppv
+    |{unalt} unalt tipo id inicialize? ppv;
+
+multi_var = var vir;
+multi_exp = exp vir;
+multi_id = id vir;
+multi_pos = l_col exp r_col;
+
+tipo_base = 
+     {integer} integer 
+    |{real} real 
+    |{symbol} symbol;
+
+tipo =
+     {tipo_base} tipo_base
+    |{vector} tipo_base vector multi_pos+;
+ 
+add_pos =
+  {add_pos} l_col number r_col;
+
+var =
+   {id} id
+  |{idpos} id add_pos+; 
+
+unalt =
+     {var} var;
+
+valor =
+  |{caractere} char
+  |{numero} number
+  |{real} float
+  |{palavra} string;
+ 
+comando =
+     {cpy} var recebe exp ppv 
+    |{const} unalt recebe_const ppv
+    |{capture} capture l_par multi_var* var r_par ppv
+    |{show} show l_par multi_exp* exp r_par ppv
+    |{in_case_that} in case that l_par exp r_par do [c1]:comando else? [c2]:comando
+    |{as_long_as} [as1]:as long [as2]:as l_par exp r_par do comando  
+    |{considering} considering var from [e1]:exp to [e2]:exp by exp do comando
+    |{bloco} bloco;
+
 exp =
-   {fator} fator 
-  |{plus} exp plus fator 
-  |{minus} exp minus fator 
-  |{recebe} exp recebe fator
-  |{recebe_const} exp recebe_const fator
-  |{greater} exp greater fator
-  |{lesser} exp lesser fator
-  |{not} exp not fator
-  |{and} exp and fator
-  |{or} exp or fator
-  |{twoequal} exp twoequal fator
-  |{goe} exp goe fator
-  |{loe} exp loe fator
-  |{diff} exp diff fator
+   {fator} fator  
+  |{soma} exp plus fator 
+  |{subtracao} exp minus fator 
+  |{rec} exp recebe fator
+  |{rec_const} exp recebe_const fator
+  |{maior} exp greater fator
+  |{menor} exp lesser fator
+  |{negacao} exp not fator
+  |{e} exp and fator
+  |{ou} exp or fator
+  |{igual} exp twoequal fator
+  |{maiorigual} exp goe fator
+  |{menorigual} exp loe fator
+  |{diferente} exp diff fator; 
 
- fator =
+fator =
    {termo} termo 
-  |{mult} fator mult termo 
-  |{div} fator div termo 
-  |{mod} fator mod termo;
+  |{multiplicacao} fator mult termo 
+  |{divisao} fator div termo 
+  |{modulo} fator mod termo;
 
- termo =
-   {digito} numero 
-  |{par} l_par exp r_par;
+termo =
+   {valor} valor
+  |{var} var
+  //|{neg} minus exp
+  |{par} l_par exp r_par;  

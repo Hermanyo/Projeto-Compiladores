@@ -34,3 +34,4 @@ if [ -d  $analysis ] || [ -d $lexer ] || [ -d  $node ] || [ -d $parser ]; then
   mv $parser $dest
   echo 'diretórios movidos com sucesso' 
 fi
+
