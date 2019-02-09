@@ -67,24 +67,26 @@ Tokens
 
 Ignored Tokens
  blank,
- comment;
- 
+ comment; 
  
 Productions  
+
 programa =
     {code} code id bloco;
+
 bloco =
     {bloco} start declaracao* comando* finish;
 
-inicialize = recebe_const valor;
 declaracao =
      {tipo} tipo multi_id* id ppv
     |{unalt} unalt tipo id inicialize? ppv;
 
+//auxiliares
 multi_var = var vir;
 multi_exp = exp vir;
 multi_id = id vir;
 multi_pos = l_col exp r_col;
+inicialize = recebe_const valor;
 
 tipo_base = 
      {integer} integer 
@@ -96,55 +98,69 @@ tipo =
     |{vector} tipo_base vector multi_pos+;
  
 add_pos =
-  {add_pos} l_col number r_col;
+    {add_pos} l_col number r_col;
 
 var =
-   {id} id
-  |{idpos} id add_pos+; 
+     {id} id
+    |{idpos} id add_pos+; 
 
 unalt =
-     {var} var;
+    {var} var;  
 
 valor =
-  |{caractere} char
-  |{numero} number
-  |{real} float
-  |{palavra} string;
- 
+    |{caractere} char
+    |{numero} number
+    |{real} float
+    |{palavra} string;
+
+otherwise = 
+    {else} else comando+;
+
 comando =
      {cpy} var recebe exp ppv 
     |{const} unalt recebe_const ppv
     |{capture} capture l_par multi_var* var r_par ppv
     |{show} show l_par multi_exp* exp r_par ppv
-    |{in_case_that} in case that l_par exp r_par do [c1]:comando else? [c2]:comando
+    |{in_case_that} in case that l_par exp r_par do comando+ otherwise? ppv
     |{as_long_as} [as1]:as long [as2]:as l_par exp r_par do comando  
-    |{considering} considering var from [e1]:exp to [e2]:exp by exp do comando
+    |{considering} considering var from [e1]:exp to [e2]:exp by [e3]:exp do comando
     |{bloco} bloco;
 
 exp =
-   {fator} fator  
-  |{soma} exp plus fator 
-  |{subtracao} exp minus fator 
-  |{rec} exp recebe fator
-  |{rec_const} exp recebe_const fator
-  |{maior} exp greater fator
-  |{menor} exp lesser fator
-  |{negacao} exp not fator
-  |{e} exp and fator
-  |{ou} exp or fator
-  |{igual} exp twoequal fator
-  |{maiorigual} exp goe fator
-  |{menorigual} exp loe fator
-  |{diferente} exp diff fator; 
+     {fator} fator  
+    |{soma} exp plus fator 
+    |{subtracao} exp minus fator 
+    |{exp_logica} exp_logica
+    |{exp_atrib} exp_atrib 
+    |{exp_comp} exp_comp;
 
 fator =
-   {termo} termo 
-  |{multiplicacao} fator mult termo 
-  |{divisao} fator div termo 
-  |{modulo} fator mod termo;
+     {termo} termo 
+    |{multiplicacao} fator mult termo 
+    |{divisao} fator div termo 
+    |{modulo} fator mod termo;
 
 termo =
-   {valor} valor
-  |{var} var
-  //|{neg} minus exp
-  |{par} l_par exp r_par;  
+     {valor} valor
+    |{var} var
+    //|{neg} minus termo
+    |{par} l_par exp r_par;
+ 
+exp_logica = 
+     {negacao} exp not fator
+    |{ou} exp or fator
+    |{xou} exp xor fator 
+    |{e} exp and fator;
+     
+exp_atrib =
+      {rec} exp recebe fator
+     |{rec_const} exp recebe_const fator;
+     
+exp_comp =
+     {maior} exp greater fator
+    |{menor} exp lesser fator
+    |{igual} exp twoequal fator
+    |{maiorigual} exp goe fator
+    |{menorigual} exp loe fator
+    |{diferente} exp diff fator;
+
