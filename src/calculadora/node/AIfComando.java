@@ -5,31 +5,29 @@ package calculadora.node;
 import calculadora.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AIfElseOtherwise extends POtherwise
+public final class AIfComando extends PComando
 {
     private TIn _in_;
     private TCase _case_;
     private TThat _that_;
     private PExp _exp_;
     private TDo _do_;
-    private PAny _any_;
-    private TElse _else_;
-    private PComando _comando_;
+    private PCmd _cmd_;
+    private POtherwise _otherwise_;
 
-    public AIfElseOtherwise()
+    public AIfComando()
     {
         // Constructor
     }
 
-    public AIfElseOtherwise(
+    public AIfComando(
         @SuppressWarnings("hiding") TIn _in_,
         @SuppressWarnings("hiding") TCase _case_,
         @SuppressWarnings("hiding") TThat _that_,
         @SuppressWarnings("hiding") PExp _exp_,
         @SuppressWarnings("hiding") TDo _do_,
-        @SuppressWarnings("hiding") PAny _any_,
-        @SuppressWarnings("hiding") TElse _else_,
-        @SuppressWarnings("hiding") PComando _comando_)
+        @SuppressWarnings("hiding") PCmd _cmd_,
+        @SuppressWarnings("hiding") POtherwise _otherwise_)
     {
         // Constructor
         setIn(_in_);
@@ -42,32 +40,29 @@ public final class AIfElseOtherwise extends POtherwise
 
         setDo(_do_);
 
-        setAny(_any_);
+        setCmd(_cmd_);
 
-        setElse(_else_);
-
-        setComando(_comando_);
+        setOtherwise(_otherwise_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AIfElseOtherwise(
+        return new AIfComando(
             cloneNode(this._in_),
             cloneNode(this._case_),
             cloneNode(this._that_),
             cloneNode(this._exp_),
             cloneNode(this._do_),
-            cloneNode(this._any_),
-            cloneNode(this._else_),
-            cloneNode(this._comando_));
+            cloneNode(this._cmd_),
+            cloneNode(this._otherwise_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAIfElseOtherwise(this);
+        ((Analysis) sw).caseAIfComando(this);
     }
 
     public TIn getIn()
@@ -195,16 +190,16 @@ public final class AIfElseOtherwise extends POtherwise
         this._do_ = node;
     }
 
-    public PAny getAny()
+    public PCmd getCmd()
     {
-        return this._any_;
+        return this._cmd_;
     }
 
-    public void setAny(PAny node)
+    public void setCmd(PCmd node)
     {
-        if(this._any_ != null)
+        if(this._cmd_ != null)
         {
-            this._any_.parent(null);
+            this._cmd_.parent(null);
         }
 
         if(node != null)
@@ -217,19 +212,19 @@ public final class AIfElseOtherwise extends POtherwise
             node.parent(this);
         }
 
-        this._any_ = node;
+        this._cmd_ = node;
     }
 
-    public TElse getElse()
+    public POtherwise getOtherwise()
     {
-        return this._else_;
+        return this._otherwise_;
     }
 
-    public void setElse(TElse node)
+    public void setOtherwise(POtherwise node)
     {
-        if(this._else_ != null)
+        if(this._otherwise_ != null)
         {
-            this._else_.parent(null);
+            this._otherwise_.parent(null);
         }
 
         if(node != null)
@@ -242,32 +237,7 @@ public final class AIfElseOtherwise extends POtherwise
             node.parent(this);
         }
 
-        this._else_ = node;
-    }
-
-    public PComando getComando()
-    {
-        return this._comando_;
-    }
-
-    public void setComando(PComando node)
-    {
-        if(this._comando_ != null)
-        {
-            this._comando_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._comando_ = node;
+        this._otherwise_ = node;
     }
 
     @Override
@@ -279,9 +249,8 @@ public final class AIfElseOtherwise extends POtherwise
             + toString(this._that_)
             + toString(this._exp_)
             + toString(this._do_)
-            + toString(this._any_)
-            + toString(this._else_)
-            + toString(this._comando_);
+            + toString(this._cmd_)
+            + toString(this._otherwise_);
     }
 
     @Override
@@ -318,21 +287,15 @@ public final class AIfElseOtherwise extends POtherwise
             return;
         }
 
-        if(this._any_ == child)
+        if(this._cmd_ == child)
         {
-            this._any_ = null;
+            this._cmd_ = null;
             return;
         }
 
-        if(this._else_ == child)
+        if(this._otherwise_ == child)
         {
-            this._else_ = null;
-            return;
-        }
-
-        if(this._comando_ == child)
-        {
-            this._comando_ = null;
+            this._otherwise_ = null;
             return;
         }
 
@@ -373,21 +336,15 @@ public final class AIfElseOtherwise extends POtherwise
             return;
         }
 
-        if(this._any_ == oldChild)
+        if(this._cmd_ == oldChild)
         {
-            setAny((PAny) newChild);
+            setCmd((PCmd) newChild);
             return;
         }
 
-        if(this._else_ == oldChild)
+        if(this._otherwise_ == oldChild)
         {
-            setElse((TElse) newChild);
-            return;
-        }
-
-        if(this._comando_ == oldChild)
-        {
-            setComando((PComando) newChild);
+            setOtherwise((POtherwise) newChild);
             return;
         }
 

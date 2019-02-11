@@ -16,7 +16,7 @@ public final class AConsideringCmd extends PCmd
     private TBy _by_;
     private PExp _e3_;
     private TDo _do_;
-    private PComando _comando_;
+    private PCmd _cmd_;
 
     public AConsideringCmd()
     {
@@ -33,7 +33,7 @@ public final class AConsideringCmd extends PCmd
         @SuppressWarnings("hiding") TBy _by_,
         @SuppressWarnings("hiding") PExp _e3_,
         @SuppressWarnings("hiding") TDo _do_,
-        @SuppressWarnings("hiding") PComando _comando_)
+        @SuppressWarnings("hiding") PCmd _cmd_)
     {
         // Constructor
         setConsidering(_considering_);
@@ -54,7 +54,7 @@ public final class AConsideringCmd extends PCmd
 
         setDo(_do_);
 
-        setComando(_comando_);
+        setCmd(_cmd_);
 
     }
 
@@ -71,7 +71,7 @@ public final class AConsideringCmd extends PCmd
             cloneNode(this._by_),
             cloneNode(this._e3_),
             cloneNode(this._do_),
-            cloneNode(this._comando_));
+            cloneNode(this._cmd_));
     }
 
     @Override
@@ -305,16 +305,16 @@ public final class AConsideringCmd extends PCmd
         this._do_ = node;
     }
 
-    public PComando getComando()
+    public PCmd getCmd()
     {
-        return this._comando_;
+        return this._cmd_;
     }
 
-    public void setComando(PComando node)
+    public void setCmd(PCmd node)
     {
-        if(this._comando_ != null)
+        if(this._cmd_ != null)
         {
-            this._comando_.parent(null);
+            this._cmd_.parent(null);
         }
 
         if(node != null)
@@ -327,7 +327,7 @@ public final class AConsideringCmd extends PCmd
             node.parent(this);
         }
 
-        this._comando_ = node;
+        this._cmd_ = node;
     }
 
     @Override
@@ -343,7 +343,7 @@ public final class AConsideringCmd extends PCmd
             + toString(this._by_)
             + toString(this._e3_)
             + toString(this._do_)
-            + toString(this._comando_);
+            + toString(this._cmd_);
     }
 
     @Override
@@ -404,9 +404,9 @@ public final class AConsideringCmd extends PCmd
             return;
         }
 
-        if(this._comando_ == child)
+        if(this._cmd_ == child)
         {
-            this._comando_ = null;
+            this._cmd_ = null;
             return;
         }
 
@@ -471,9 +471,9 @@ public final class AConsideringCmd extends PCmd
             return;
         }
 
-        if(this._comando_ == oldChild)
+        if(this._cmd_ == oldChild)
         {
-            setComando((PComando) newChild);
+            setCmd((PCmd) newChild);
             return;
         }
 

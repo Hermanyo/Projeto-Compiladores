@@ -5,19 +5,23 @@ package calculadora.node;
 import calculadora.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ACmdAny extends PAny
+public final class AElseOtherwise extends POtherwise
 {
+    private TElse _else_;
     private PCmd _cmd_;
 
-    public ACmdAny()
+    public AElseOtherwise()
     {
         // Constructor
     }
 
-    public ACmdAny(
+    public AElseOtherwise(
+        @SuppressWarnings("hiding") TElse _else_,
         @SuppressWarnings("hiding") PCmd _cmd_)
     {
         // Constructor
+        setElse(_else_);
+
         setCmd(_cmd_);
 
     }
@@ -25,14 +29,40 @@ public final class ACmdAny extends PAny
     @Override
     public Object clone()
     {
-        return new ACmdAny(
+        return new AElseOtherwise(
+            cloneNode(this._else_),
             cloneNode(this._cmd_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseACmdAny(this);
+        ((Analysis) sw).caseAElseOtherwise(this);
+    }
+
+    public TElse getElse()
+    {
+        return this._else_;
+    }
+
+    public void setElse(TElse node)
+    {
+        if(this._else_ != null)
+        {
+            this._else_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._else_ = node;
     }
 
     public PCmd getCmd()
@@ -64,6 +94,7 @@ public final class ACmdAny extends PAny
     public String toString()
     {
         return ""
+            + toString(this._else_)
             + toString(this._cmd_);
     }
 
@@ -71,6 +102,12 @@ public final class ACmdAny extends PAny
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
+        if(this._else_ == child)
+        {
+            this._else_ = null;
+            return;
+        }
+
         if(this._cmd_ == child)
         {
             this._cmd_ = null;
@@ -84,6 +121,12 @@ public final class ACmdAny extends PAny
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
+        if(this._else_ == oldChild)
+        {
+            setElse((TElse) newChild);
+            return;
+        }
+
         if(this._cmd_ == oldChild)
         {
             setCmd((PCmd) newChild);

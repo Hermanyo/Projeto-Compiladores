@@ -121,21 +121,16 @@ valor =
 cmd = {cpy} var recebe exp ppv
     |{const} unalt recebe_const ppv
     |{capture} capture l_par multi_var* var r_par ppv
-    |{show} show l_par multi_exp* exp r_par ppv;
-
-otherwise = 
-     {if} in case that exp do comando
-    |{if_else_no_short} in case that exp do bloco else comando;
-
-comando =
-     {cpy} var recebe exp ppv
-    |{const} unalt recebe_const ppv
-    |{capture} capture l_par multi_var* var r_par ppv
-    |{show} show l_par multi_exp* exp r_par ppv
-    |{otherwise} otherwise
-    |{as_long_as} [as1]:as long [as2]:as l_par exp r_par do comando
-    |{considering} considering var from [e1]:exp to [e2]:exp by [e3]:exp do comando
+    |{show} show l_par multi_exp* exp r_par ppv 
+    |{as_long_as} [as1]:as long [as2]:as l_par exp r_par do cmd
+    |{considering} considering var from [e1]:exp to [e2]:exp by [e3]:exp do cmd
     |{bloco} bloco;
+ 
+otherwise = {else} else cmd;
+
+comando = 
+     {cmd} cmd
+    | {if} in case that exp do cmd otherwise? ;
 
 exp =
      {fator} fator

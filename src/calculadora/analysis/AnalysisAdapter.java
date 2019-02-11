@@ -237,61 +237,37 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAIfOtherwise(AIfOtherwise node)
+    public void caseAAsLongAsCmd(AAsLongAsCmd node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAIfElseNoShortOtherwise(AIfElseNoShortOtherwise node)
+    public void caseAConsideringCmd(AConsideringCmd node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseACpyComando(ACpyComando node)
+    public void caseABlocoCmd(ABlocoCmd node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAConstComando(AConstComando node)
+    public void caseAElseOtherwise(AElseOtherwise node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseACaptureComando(ACaptureComando node)
+    public void caseACmdComando(ACmdComando node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAShowComando(AShowComando node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAOtherwiseComando(AOtherwiseComando node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAAsLongAsComando(AAsLongAsComando node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAConsideringComando(AConsideringComando node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseABlocoComando(ABlocoComando node)
+    public void caseAIfComando(AIfComando node)
     {
         defaultCase(node);
     }

@@ -14,7 +14,7 @@ public final class AAsLongAsCmd extends PCmd
     private PExp _exp_;
     private TRPar _rPar_;
     private TDo _do_;
-    private PComando _comando_;
+    private PCmd _cmd_;
 
     public AAsLongAsCmd()
     {
@@ -29,7 +29,7 @@ public final class AAsLongAsCmd extends PCmd
         @SuppressWarnings("hiding") PExp _exp_,
         @SuppressWarnings("hiding") TRPar _rPar_,
         @SuppressWarnings("hiding") TDo _do_,
-        @SuppressWarnings("hiding") PComando _comando_)
+        @SuppressWarnings("hiding") PCmd _cmd_)
     {
         // Constructor
         setAs1(_as1_);
@@ -46,7 +46,7 @@ public final class AAsLongAsCmd extends PCmd
 
         setDo(_do_);
 
-        setComando(_comando_);
+        setCmd(_cmd_);
 
     }
 
@@ -61,7 +61,7 @@ public final class AAsLongAsCmd extends PCmd
             cloneNode(this._exp_),
             cloneNode(this._rPar_),
             cloneNode(this._do_),
-            cloneNode(this._comando_));
+            cloneNode(this._cmd_));
     }
 
     @Override
@@ -245,16 +245,16 @@ public final class AAsLongAsCmd extends PCmd
         this._do_ = node;
     }
 
-    public PComando getComando()
+    public PCmd getCmd()
     {
-        return this._comando_;
+        return this._cmd_;
     }
 
-    public void setComando(PComando node)
+    public void setCmd(PCmd node)
     {
-        if(this._comando_ != null)
+        if(this._cmd_ != null)
         {
-            this._comando_.parent(null);
+            this._cmd_.parent(null);
         }
 
         if(node != null)
@@ -267,7 +267,7 @@ public final class AAsLongAsCmd extends PCmd
             node.parent(this);
         }
 
-        this._comando_ = node;
+        this._cmd_ = node;
     }
 
     @Override
@@ -281,7 +281,7 @@ public final class AAsLongAsCmd extends PCmd
             + toString(this._exp_)
             + toString(this._rPar_)
             + toString(this._do_)
-            + toString(this._comando_);
+            + toString(this._cmd_);
     }
 
     @Override
@@ -330,9 +330,9 @@ public final class AAsLongAsCmd extends PCmd
             return;
         }
 
-        if(this._comando_ == child)
+        if(this._cmd_ == child)
         {
-            this._comando_ = null;
+            this._cmd_ = null;
             return;
         }
 
@@ -385,9 +385,9 @@ public final class AAsLongAsCmd extends PCmd
             return;
         }
 
-        if(this._comando_ == oldChild)
+        if(this._cmd_ == oldChild)
         {
-            setComando((PComando) newChild);
+            setCmd((PCmd) newChild);
             return;
         }
 

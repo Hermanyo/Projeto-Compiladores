@@ -5,46 +5,46 @@ package calculadora.node;
 import calculadora.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AOtherwiseComando extends PComando
+public final class ABlocoCmd extends PCmd
 {
-    private POtherwise _otherwise_;
+    private PBloco _bloco_;
 
-    public AOtherwiseComando()
+    public ABlocoCmd()
     {
         // Constructor
     }
 
-    public AOtherwiseComando(
-        @SuppressWarnings("hiding") POtherwise _otherwise_)
+    public ABlocoCmd(
+        @SuppressWarnings("hiding") PBloco _bloco_)
     {
         // Constructor
-        setOtherwise(_otherwise_);
+        setBloco(_bloco_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AOtherwiseComando(
-            cloneNode(this._otherwise_));
+        return new ABlocoCmd(
+            cloneNode(this._bloco_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAOtherwiseComando(this);
+        ((Analysis) sw).caseABlocoCmd(this);
     }
 
-    public POtherwise getOtherwise()
+    public PBloco getBloco()
     {
-        return this._otherwise_;
+        return this._bloco_;
     }
 
-    public void setOtherwise(POtherwise node)
+    public void setBloco(PBloco node)
     {
-        if(this._otherwise_ != null)
+        if(this._bloco_ != null)
         {
-            this._otherwise_.parent(null);
+            this._bloco_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class AOtherwiseComando extends PComando
             node.parent(this);
         }
 
-        this._otherwise_ = node;
+        this._bloco_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._otherwise_);
+            + toString(this._bloco_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._otherwise_ == child)
+        if(this._bloco_ == child)
         {
-            this._otherwise_ = null;
+            this._bloco_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class AOtherwiseComando extends PComando
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._otherwise_ == oldChild)
+        if(this._bloco_ == oldChild)
         {
-            setOtherwise((POtherwise) newChild);
+            setBloco((PBloco) newChild);
             return;
         }
 
