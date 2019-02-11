@@ -12,4 +12,4 @@ Seguindo as regras do SableCC
   Productions /* grammar */
     exp = {constant} number |
           {add} add;
-    add = l_par [left]:exp plus [right]:exp r_par;
+    add = l_par [left]:exp plus [right]:exp r_par; 
