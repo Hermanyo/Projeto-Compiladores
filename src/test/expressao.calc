@@ -1,0 +1,8 @@
+code ordenar_numeros
+
+start  
+
+in case that (1) do 
+else show(10);
+
+finish 

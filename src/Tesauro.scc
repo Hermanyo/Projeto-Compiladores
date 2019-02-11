@@ -1,0 +1,176 @@
+Package calculadora;
+
+Helpers
+ digito = ['0' .. '9'];
+ letra_min = ['a' .. 'z'];
+ letra_mai = ['A' .. 'Z'];
+ ascii = [0x0000..0xFFFF];
+ ascii1 = [0x0000..0x0021];
+ ascii2 = [0x0023..0xFFFF];
+ binary = [0 .. 1];
+ espaco = ' ';
+ tab = '	';
+ rc = 13;
+ nl = 10;
+ aspas = ''';
+ aspas_duplas = '"';
+
+Tokens
+ real = 'real';
+ integer = 'integer';
+ symbol = 'symbol';
+ vector = 'vector';
+ code = 'code';
+ start = 'start';
+ finish = 'finish';
+ unalterable = 'unalterable';
+ in = 'in';
+ case = 'case';
+ that = 'that';
+ do = 'do';
+ else = 'else';
+ as = 'as';
+ long = 'long';
+ considering = 'considering';
+ from = 'from';
+ to = 'to';
+ by = 'by';
+ capture = 'capture';
+ show = 'show';
+ plus = '+';
+ minus = '-';
+ mult = '*';
+ div = '/';
+ mod = '%';
+ recebe = (':')('=');
+ recebe_const = '=';
+ greater = '>';
+ lesser = '<';
+ not = '!';
+ and = 'and';
+ or = 'or';
+ xor = 'xor';
+ twoequal = ('=')('=');
+ goe = ('>')('=');
+ loe = ('<')('=');
+ diff = ('!')('=');
+ l_par = '(';
+ r_par = ')';
+ l_com = '{';
+ r_com = '}';
+ l_col = '[';
+ r_col = ']';
+ ppv = ';';
+ vir = ',';
+ id = (letra_min|letra_mai)(letra_min|letra_mai|'_')*;
+ char = (aspas)(ascii)(aspas);
+ number = digito+;//(digito+)|(('b')(digito+));
+ string = aspas_duplas(ascii1|ascii2)*aspas_duplas;
+ float = (digito+)'.'(digito+);
+ blank = (espaco | rc | nl | tab)+;
+ comment = ('{')(ascii)*('}'); 
+
+Ignored Tokens
+ blank,
+ comment;
+
+Productions
+
+programa =
+    {code} code id bloco;
+
+bloco =
+    {bloco} start declaracao* comando* finish;
+
+declaracao =
+     {tipo} tipo multi_id* id ppv
+    |{unalt} unalterable tipo id inicialize? ppv;
+
+//auxiliares
+multi_var = var vir;
+multi_exp = exp vir;
+multi_id = id vir;
+multi_pos = l_col exp r_col;
+inicialize = recebe_const valor;
+
+tipo_base =
+     {integer} integer
+    |{real} real
+    |{symbol} symbol;
+
+tipo =
+	 {vector} tipo_base vector multi_pos+
+     |{tipo_base} tipo_base;
+
+add_pos =
+    {add_pos} l_col number r_col;
+
+var = 
+      {idpos} id add_pos+
+     |{id} id;
+
+unalt =
+    {var} var;
+
+valor =
+    |{caractere} char
+    |{numero} number
+    |{real} float
+    |{palavra} string;
+
+cmd = {cpy} var recebe exp ppv
+    |{const} unalt recebe_const ppv
+    |{capture} capture l_par multi_var* var r_par ppv
+    |{show} show l_par multi_exp* exp r_par ppv;
+
+otherwise = 
+     {if} in case that exp do comando
+    |{if_else_no_short} in case that exp do bloco else comando;
+
+comando =
+     {cpy} var recebe exp ppv
+    |{const} unalt recebe_const ppv
+    |{capture} capture l_par multi_var* var r_par ppv
+    |{show} show l_par multi_exp* exp r_par ppv
+    |{otherwise} otherwise
+    |{as_long_as} [as1]:as long [as2]:as l_par exp r_par do comando
+    |{considering} considering var from [e1]:exp to [e2]:exp by [e3]:exp do comando
+    |{bloco} bloco;
+
+exp =
+     {fator} fator
+    |{soma} exp plus fator
+    |{subtracao} exp minus fator
+    |{exp_logica} exp_logica
+    |{exp_atrib} exp_atrib
+    |{exp_comp} exp_comp;
+
+fator =
+     {termo} termo
+    |{multiplicacao} fator mult termo
+    |{divisao} fator div termo
+    |{modulo} fator mod termo;
+
+termo =
+     {valor} valor
+    |{var} var
+    //|{neg} minus termo
+    |{par} l_par exp r_par;
+
+exp_logica =
+     {negacao} exp not fator
+    |{ou} exp or fator
+    |{xou} exp xor fator
+    |{e} exp and fator;
+
+exp_atrib =
+      {rec} exp recebe fator
+     |{rec_const} exp recebe_const fator;
+
+exp_comp =
+     {maior} exp greater fator
+    |{menor} exp lesser fator
+    |{igual} exp twoequal fator
+    |{maiorigual} exp goe fator
+    |{menorigual} exp loe fator
+|{diferente} exp diff fator;
