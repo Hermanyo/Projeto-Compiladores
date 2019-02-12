@@ -64,7 +64,7 @@ Tokens
  vir = ',';
  id = (letra_min|letra_mai)(letra_min|letra_mai|'_')*;
  char = (aspas)(ascii)(aspas);
- number = digito+;//(digito+)|(('b')(digito+));
+ number = (digito+)|(('b')(digito+));
  string = aspas_duplas(ascii1|ascii2)*aspas_duplas;
  float = (digito+)'.'(digito+);
  blank = (espaco | rc | nl | tab)+;
@@ -130,7 +130,7 @@ otherwise = {else} else cmd;
 
 comando = 
      {cmd} cmd
-    | {if} in case that l_par exp r_par do cmd otherwise?;
+    |{if} in case that l_par exp r_par do cmd otherwise?;
 
 exp =
      {fator} fator
@@ -168,4 +168,4 @@ exp_comp =
     |{igual} exp twoequal fator
     |{maiorigual} exp goe fator
     |{menorigual} exp loe fator
-|{diferente} exp diff fator;
+    |{diferente} exp diff fator;
