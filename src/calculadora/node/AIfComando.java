@@ -10,7 +10,9 @@ public final class AIfComando extends PComando
     private TIn _in_;
     private TCase _case_;
     private TThat _that_;
+    private TLPar _lPar_;
     private PExp _exp_;
+    private TRPar _rPar_;
     private TDo _do_;
     private PCmd _cmd_;
     private POtherwise _otherwise_;
@@ -24,7 +26,9 @@ public final class AIfComando extends PComando
         @SuppressWarnings("hiding") TIn _in_,
         @SuppressWarnings("hiding") TCase _case_,
         @SuppressWarnings("hiding") TThat _that_,
+        @SuppressWarnings("hiding") TLPar _lPar_,
         @SuppressWarnings("hiding") PExp _exp_,
+        @SuppressWarnings("hiding") TRPar _rPar_,
         @SuppressWarnings("hiding") TDo _do_,
         @SuppressWarnings("hiding") PCmd _cmd_,
         @SuppressWarnings("hiding") POtherwise _otherwise_)
@@ -36,7 +40,11 @@ public final class AIfComando extends PComando
 
         setThat(_that_);
 
+        setLPar(_lPar_);
+
         setExp(_exp_);
+
+        setRPar(_rPar_);
 
         setDo(_do_);
 
@@ -53,7 +61,9 @@ public final class AIfComando extends PComando
             cloneNode(this._in_),
             cloneNode(this._case_),
             cloneNode(this._that_),
+            cloneNode(this._lPar_),
             cloneNode(this._exp_),
+            cloneNode(this._rPar_),
             cloneNode(this._do_),
             cloneNode(this._cmd_),
             cloneNode(this._otherwise_));
@@ -140,6 +150,31 @@ public final class AIfComando extends PComando
         this._that_ = node;
     }
 
+    public TLPar getLPar()
+    {
+        return this._lPar_;
+    }
+
+    public void setLPar(TLPar node)
+    {
+        if(this._lPar_ != null)
+        {
+            this._lPar_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._lPar_ = node;
+    }
+
     public PExp getExp()
     {
         return this._exp_;
@@ -163,6 +198,31 @@ public final class AIfComando extends PComando
         }
 
         this._exp_ = node;
+    }
+
+    public TRPar getRPar()
+    {
+        return this._rPar_;
+    }
+
+    public void setRPar(TRPar node)
+    {
+        if(this._rPar_ != null)
+        {
+            this._rPar_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._rPar_ = node;
     }
 
     public TDo getDo()
@@ -247,7 +307,9 @@ public final class AIfComando extends PComando
             + toString(this._in_)
             + toString(this._case_)
             + toString(this._that_)
+            + toString(this._lPar_)
             + toString(this._exp_)
+            + toString(this._rPar_)
             + toString(this._do_)
             + toString(this._cmd_)
             + toString(this._otherwise_);
@@ -275,9 +337,21 @@ public final class AIfComando extends PComando
             return;
         }
 
+        if(this._lPar_ == child)
+        {
+            this._lPar_ = null;
+            return;
+        }
+
         if(this._exp_ == child)
         {
             this._exp_ = null;
+            return;
+        }
+
+        if(this._rPar_ == child)
+        {
+            this._rPar_ = null;
             return;
         }
 
@@ -324,9 +398,21 @@ public final class AIfComando extends PComando
             return;
         }
 
+        if(this._lPar_ == oldChild)
+        {
+            setLPar((TLPar) newChild);
+            return;
+        }
+
         if(this._exp_ == oldChild)
         {
             setExp((PExp) newChild);
+            return;
+        }
+
+        if(this._rPar_ == oldChild)
+        {
+            setRPar((TRPar) newChild);
             return;
         }
 

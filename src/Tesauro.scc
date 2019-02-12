@@ -130,7 +130,7 @@ otherwise = {else} else cmd;
 
 comando = 
      {cmd} cmd
-    | {if} in case that exp do cmd otherwise? ;
+    | {if} in case that l_par exp r_par do cmd otherwise?;
 
 exp =
      {fator} fator

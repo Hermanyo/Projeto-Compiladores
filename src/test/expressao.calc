@@ -1,5 +1,8 @@
 code ordenar_numeros
 
-start    
-  in case that do show(2); show(3); else show(2);  
+start  
+  
+    in case that (1) do
+    start 
+    finish
 finish 
