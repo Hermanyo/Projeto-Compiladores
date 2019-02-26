@@ -1,0 +1,212 @@
+Package calculadora;
+
+Helpers
+ digito = ['0' .. '9'];
+ letra_min = ['a' .. 'z'];
+ letra_mai = ['A' .. 'Z'];
+ ascii = [0x0000..0xFFFF];
+ ascii1 = [0x0000..0x0021];
+ ascii2 = [0x0023..0xFFFF];
+ binary = [0 .. 1];
+ espaco = ' ';
+ tab = '	';
+ rc = 13;
+ nl = 10;
+ aspas = ''';
+ aspas_duplas = '"';
+
+Tokens
+ real = 'real';
+ integer = 'integer';
+ symbol = 'symbol';
+ vector = 'vector';
+ code = 'code';
+ start = 'start';
+ finish = 'finish';
+ unalterable = 'unalterable';
+ in = 'in';
+ case = 'case';
+ that = 'that';
+ do = 'do';
+ else = 'else';
+ as = 'as';
+ long = 'long';
+ considering = 'considering';
+ from = 'from';
+ to = 'to';
+ by = 'by';
+ capture = 'capture';
+ show = 'show';
+ plus = '+';
+ minus = '-';
+ mult = '*';
+ div = '/';
+ mod = '%';
+ recebe = (':')('=');
+ recebe_const = '=';
+ greater = '>';
+ lesser = '<';
+ not = '!';
+ and = 'and';
+ or = 'or';
+ xor = 'xor';
+ twoequal = ('=')('=');
+ goe = ('>')('=');
+ loe = ('<')('=');
+ diff = ('!')('=');
+ l_par = '(';
+ r_par = ')';
+ l_com = '{';
+ r_com = '}';
+ l_col = '[';
+ r_col = ']';
+ ppv = ';';
+ vir = ',';
+ id = (letra_min|letra_mai)(letra_min|letra_mai|'_')*;
+ char = (aspas)(ascii)(aspas);
+ number = (digito+)|(('b')(digito+));
+ string = aspas_duplas(ascii1|ascii2)*aspas_duplas;
+ float = (digito+)'.'(digito+);
+ blank = (espaco | rc | nl | tab)+;
+ comment = ('{')(ascii)*('}'); 
+
+Ignored Tokens
+ blank,
+ comment;
+
+Productions
+
+programa =
+    {code} code id bloco;
+
+bloco {-> P.bloco} =
+    {bloco} start declaracao* comando* finish {-> New bloco.bloco([declaracao], [comando])};
+
+declaracao {-> P.declaracao} =
+     {tipo} tipo multi_id* id ppv {-> New declaracao.declaracoes(tipo, [multi_id.id]) }
+    |{unalt} unalterable tipo id inicialize? ppv {-> New declaracao.declaracoes(tipo, id.id, inicialize)};
+
+//auxiliares
+multi_var = var vir;
+multi_exp = exp vir;
+multi_id = id vir;
+multi_pos = l_col exp r_col;
+inicialize = recebe_const valor;
+
+tipo_base {-> P.tipo_base} = 
+     {integer} integer {-> New tipo_base.inteiro (inteiro)}
+    |{real} real {-> New tipo_base.real (real)}
+    |{symbol} symbol {-> New tipo_base.symbol (symbol)};
+
+tipo {-> P.tipo} = 
+	 {vector} tipo_base vector multi_pos+ {-> New tipo.vector(tipo_base, [multi_pos.multi])}
+     |{tipo_base} tipo_base {-> P.tipo_base};
+
+add_pos {-> P.add_pos} =
+    {add_pos} l_col number r_col {-> New add_pos.number(number)};
+
+var {-> P.var} = 
+      {idpos} id add_pos+ {-> New var.idpos(id, [add_pos.multi])}
+     |id {-> New var.id(id)};
+
+unalt =
+    {var} var;
+
+valor {-> P.valor}=
+    |{caractere} char {-> New valor.caractere(char)}
+    |{numero} number {-> New valor.numero(number)}
+    |{real} float {-> New valor.real(float)}
+    |{palavra} string {-> New valor.palavra(string)};
+
+cmd {-> P.exp} = {cpy} var recebe exp ppv {-> New exp.cpy(var, exp)}
+    |{const} unalt recebe_const ppv {-> New exp.const(unalt)}
+    |{capture} capture l_par multi_var* var r_par ppv {-> New exp.capture([multi_var], var)}
+    |{show} show l_par multi_exp* exp r_par ppv {-> New exp.show([multi_exp], exp)}
+    |{as_long_as} [as1]:as long [as2]:as l_par exp r_par do cmd {-> New exp.as_long_as(exp, cmd)}
+    |{considering} considering var from [e1]:exp to [e2]:exp by [e3]:exp do cmd {-> New exp.considering(var, exp, exp, cmd)}
+    |{bloco} bloco {-> bloco.bloco};
+ 
+otherwise {-> P.exp} = {else} else cmd {-> New exp.cmd(cmd)};
+
+comando {-> P.comando} = 
+     {cmd} cmd {-> comando.cmd}
+    |{if} in case that l_par exp r_par do cmd otherwise? {-> New comando.if(exp, cmd, otherwise)};
+
+exp {-> P.exp} =
+    {fator} fator {-> fator.exp}
+    |{soma} [esq]:exp plus [dir]:fator {-> New exp.a_soma(esq.exp, dir.exp)}
+    |{subtracao} [esq]:exp minus [dir]:fator {-> New exp.a_subtracao(esq.exp, dir.exp)} 
+    |{exp_logica} exp_logica {-> exp_logica.exp}
+    |{exp_atrib} exp_atrib {-> exp_atrib.exp}
+    |{exp_comp} exp_comp {-> exp_comp.exp};
+
+fator {-> P.exp} =
+    {termo} termo {-> termo.exp}
+    |{multiplicacao} [esq]:fator mult [dir]:termo {-> New exp.a_multiplicacao(esq.exp, dir.exp)}
+    |{divisao} [esq]:fator div [dir]:termo {-> New exp.a_divisao(esq.exp, dir.exp)}
+    |{modulo} [esq]:fator mod [dir]:termo {-> New exp.a_modulo(esq.exp, dir.exp)};
+
+termo {-> exp} =
+    {valor} valor {-> valor.exp}
+    |{var} var {-> var.exp}
+    |{exp} l_par exp r_par {-> exp.exp};
+
+exp_logica {-> P.exp} =
+    {negacao} [esq]:exp not [dir]:fator {->New exp.a_negacao(esq.exp, dir.exp)}
+    |{ou} [esq]:exp or [dir]:fator {->New exp.a_ou(esq.exp, dir.exp)}
+    |{xou} [esq]:exp xor [dir]:fator {->New exp.a_xou(esq.exp, dir.exp)}
+    |{e} [esq]:exp and [dir]:fator {->New exp.a_e(esq.exp, dir.exp)}; 
+
+exp_atrib {-> exp} =
+     {rec} [esq]:exp recebe [dir]:fator {->New exp.a_rec(esq.exp, dir.exp)}
+     |{rec_const} [esq]:exp recebe_const [dir]:fator {->New exp.a_rec_const(esq.exp, dir.exp)};
+
+exp_comp {-> P.exp} =
+    {maior} [esq]:exp greater [dir]:fator {->New exp.a_maior(esq.exp, dir.exp)}
+    |{menor} [esq]:exp lesser [dir]:fator {->New exp.a_menor(esq.exp, dir.exp)}
+    |{igual} [esq]:exp twoequal [dir]:fator {->New exp.a_igual(esq.exp, dir.exp)}
+    |{maiorigual} [esq]:exp goe [dir]:fator {->New exp.a_maiorigual(esq.exp, dir.exp)}
+    |{menorigual} [esq]:exp loe [dir]:fator {->New exp.a_menorigual(esq.exp, dir.exp)}
+    |{diferente} [esq]:exp diff [dir]:fator {->New exp.a_diferente(esq.exp, dir.exp)};
+    
+Abstract Syntax Tree
+
+	inicio  	= {bloco} [declaracoes]:declaracao* [comandos]:comando*;
+    declaracao  = {declaracoes} tipo [identificadores]:multi_id*;
+    tipo		= {vector} tipo_base [identificadores]:multi_pos*
+    			| {tipo_base} tipo_base;
+    tipo_base 	= {integer} integer
+    			| {real} real
+                | {symbol} symbol;
+    var         = {id} id
+    			| {add_pos} id [identificadores]: add_pos+;
+    valor		= {caractere} char
+    			| {numero} number
+    			| {real} float
+    			| {palavra} string;
+    exp 		= {a_soma} [esq]:exp [dir]:exp
+     			| {a_subtracao} [esq]:exp [dir]:exp
+			    | {a_multiplicacao} [esq]:exp [dir]:exp
+			    | {a_divisao} [esq]:exp [dir]:exp
+			    | {a_modulo} [esq]:exp [dir]:exp
+			    | {a_negacao} [esq]:exp [dir]:exp
+			    | {a_ou} [esq]:exp [dir]:exp
+			    | {a_xou} [esq]:exp [dir]:exp
+			    | {a_e} [esq]:exp [dir]:exp
+			    | {a_rec} [esq]:exp [dir]:exp
+			    | {a_rec_const} [esq]:exp [dir]:exp
+			    | {a_maior} [esq]:exp [dir]:exp
+			    | {a_menor} [esq]:exp [dir]:exp
+			    | {a_igual} [esq]:exp [dir]:exp
+			    | {a_maiorigual} [esq]:exp [dir]:exp
+			    | {a_menorigual} [esq]:exp [dir]:exp
+			    | {a_diferente} [esq]:exp [dir]:exp
+			    | {cpy} var exp
+			    | {const} unalt
+    			| {capture} [identificadores]:multi_var* var
+    			| {show} [identificadores]:mult_exp* exp
+    			| {as_long_as} exp cmd
+    			| {bloco} bloco
+    			| {cmd} cmd
+    			| {if} exp cmd otherwise
+    			| {else} cmd;
