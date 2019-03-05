@@ -76,164 +76,184 @@ Ignored Tokens
 
 Productions
 
-programa {-> programa} = {programa} code id bloco {-> New programa(bloco)};
+programa {-> programa} = {programa} code id bloco {-> New programa.programa(bloco)};
 
 bloco {-> bloco} =
-    {bloco} start declaracao* comando* finish {-> New bloco([declaracao], [comando])};
+    {bloco} start declaracao* comando* finish {-> New bloco.bloco([declaracao], [comando])};
 
 declaracao {-> declaracao} =
-     {tipo} tipo multi_id* id ppv {-> New declaracao.a_tipo(tipo, multi_id)}
-    |{unalt} unalterable tipo id inicialize? ppv {-> New declaracao.a_unalt( tipo , inicialize)};
+     {tipo} tipo multi_id* id ppv {-> New declaracao.tipo(tipo, [multi_id])}
+    |{unalt} unalterable tipo id inicialize? ppv {-> New declaracao.unalt(tipo,inicialize)};
 
 //auxiliares
-multi_var {-> exp} = var vir {-> New exp.a_var(var.var)};
-multi_exp {-> exp} = exp vir {-> New exp.a_exp(exp.exp)};
-multi_id {-> exp} = id vir {-> New exp.a_id(id.var)};
-multi_pos {-> exp} = l_col exp r_col {-> New exp.a_exp(exp.exp)};
-inicialize {-> exp} = recebe_const valor {-> New exp.a_valor(valor.exp)};
+multi_var {-> multi_var} = {multi_var} var vir {-> New multi_var.multi_var(var)}; 
+multi_exp {-> multi_exp} = {multi_exp} exp vir {-> New multi_exp.multi_exp(exp)};
+multi_id {-> multi_id} = {multi_id} id vir {-> New multi_id.multi_id(id)};
+multi_pos {-> multi_pos} = {multi_pos} l_col exp r_col {-> New multi_pos.multi_pos(exp)};
+inicialize {-> inicialize?} = {tvalor} recebe_const valor {-> New inicialize.tvalor(valor)};
 
 tipo_base {-> tipo_base} =
      {integer} integer {-> New tipo_base.integer(integer)}
-    |{real} real {-> New tipo_base.real(integer)}
+    |{real} real {-> New tipo_base.real(real)}
     |{symbol} symbol {-> New tipo_base.symbol(symbol)};
- 
+
 tipo {-> tipo} =
-      {vector} tipo_base vector multi_pos+ {-> New tipo.a_vector(tipo_base, multi_pos)}
-     |{tipo_base} tipo_base {-> New tipo_base.a_tipo_base(tipo_base)};
+      {vector} tipo_base vector multi_pos+ {-> New tipo.vector(tipo_base, [multi_pos])}
+     |{tipo_base} tipo_base {-> New tipo.tipo_base(tipo_base)};
 
 add_pos {-> add_pos} =
     {add_pos} l_col number r_col {-> New add_pos.add_pos(number)};
 
 var {-> var} = 
-      {idpos} id add_pos+ {-> New var.a_idpos(add_pos)}
-     |{id} id {-> var.id};
+      {var_idpos} id add_pos+ {-> New var.var_idpos([add_pos])}
+     |{id} id {-> New var.id(id)};
 
-unalt {-> exp} =
-    {var} var {-> var.exp};
+unalt {-> unalt} =
+      {unalt_idpos} id add_pos+ {-> New unalt.unalt_idpos([add_pos])}
+     |{id} id {-> New unalt.id(id)};
 
-valor {-> exp} =
-    {caractere} char {-> New exp.a_caractere(char)}
-    |{numero} number {-> New exp.a_numero(number)}
-    |{float} float {-> New exp.a_float(float)}
-    |{palavra} string {-> New exp.a_palavra(string)};
+valor {-> valor} =
+    {caractere} char {-> New valor.caractere(char)}
+    |{numero} number {-> New valor.numero(number)}
+    |{real} float {-> New valor.real(float)}
+    |{palavra} string {-> New valor.palavra(string)};
+
+cmd {-> cmd} = 
+     {cpy} var recebe exp ppv {-> New cmd.cpy(var,exp)}
+    |{const} unalt recebe_const ppv {-> New cmd.const(unalt)}
+    |{capture} capture l_par multi_var* var r_par ppv {-> New cmd.capture([multi_var], var)}
+    |{show} show l_par multi_exp* exp r_par ppv  {-> New cmd.show([multi_exp], exp)}
+    |{as_long_as} [as1]:as long [as2]:as l_par exp r_par do cmd {-> New cmd.as_long_as(exp, cmd)}
+    |{considering} considering var from [e1]:exp to [e2]:exp by [e3]:exp do cmd {-> New cmd.considering(var,e1,e2,e3,cmd)}
+    |{bloco} bloco {-> New cmd.bloco(bloco)};
+ 
+otherwise {-> otherwise} = {else} else cmd {-> New otherwise.else(cmd)};
+
+comando {-> comando} = 
+     {cmd} cmd {-> New comando.cmd(cmd)}
+    |{if} in case that l_par exp r_par do cmd otherwise? {-> New comando.if(exp,cmd,otherwise)};
 
 exp {-> exp} =
-    {fator} fator {-> fator.exp}
-    |{soma} [esq]:exp plus [dir]:fator {-> New exp.a_soma(esq.exp, dir.exp)}
-    |{subtracao} [esq]:exp minus [dir]:fator {-> New exp.a_subtracao(esq.exp, dir.exp)} 
-    |{exp_logica} exp_logica {-> exp_logica.exp}
-    |{exp_atrib} exp_atrib {-> exp_atrib.exp}
-    |{exp_comp} exp_comp {-> exp_comp.exp};
+     {fator} fator {-> New exp.fator(fator)}
+    |{soma} exp plus fator {-> New exp.soma(exp,fator)}
+    |{subtracao} exp minus fator {-> New exp.subtracao(exp,fator)}
+    |{exp_logica} exp_logica {-> New exp.exp_logica(exp_logica)}
+    |{exp_atrib} exp_atrib {-> New exp.exp_atrib(exp_atrib)}
+    |{exp_comp} exp_comp {-> New exp.exp_comp(exp_comp)};
 
-cmd {-> exp} = {cpy} [esq]:var recebe [dir]:exp ppv {-> New exp.a_cpy(esq.exp, dir.exp)}
-    |{as_long_as} [as1]:as long [as2]:as l_par [esq]:exp r_par do [dir]:cmd {-> New exp.a_as_long_as(esq.exp, dir.exp)};
 
-otherwise {-> exp} = {else} else cmd {-> New exp.a_cmd(cmd)};
+fator {-> fator} =
+     {termo} termo {-> New fator.termo(termo)}
+    |{multiplicacao} fator mult termo {-> New fator.multiplicacao(fator, termo)}
+    |{divisao} fator div termo {-> New fator.divisao(fator,termo)}
+    |{modulo} fator mod termo {-> New fator.modulo(fator,termo)};
 
-comando {-> exp} = 
-     {cmd} cmd {-> cmd.exp}
-    |{if} in case that l_par exp r_par do cmd otherwise? {-> New exp.a_if(exp, cmd, otherwise)};
+termo {-> termo} =
+     {tvalor} valor {-> New termo.tvalor(valor)}
+    |{var} var {-> New termo.var(var)}
+    |{par} l_par exp r_par {-> New termo.par(exp)};
 
-fator {-> exp} =
-    {termo} termo {-> termo.exp}
-    |{multiplicacao} [esq]:fator mult [dir]:termo {-> New exp.a_multiplicacao(esq.exp, dir.exp)}
-    |{divisao} [esq]:fator div [dir]:termo {-> New exp.a_divisao(esq.exp, dir.exp)}
-    |{modulo} [esq]:fator mod [dir]:termo {-> New exp.a_modulo(esq.exp, dir.exp)};
+exp_logica {-> exp_logica} =
+     {negacao} exp not fator {-> New exp_logica.negacao(exp, fator)}
+    |{ou} exp or fator {-> New exp_logica.ou(exp, fator)}
+    |{xou} exp xor fator {-> New exp_logica.xou(exp,fator)}
+    |{e} exp and fator {-> New exp_logica.e(exp,fator)};
 
-termo {-> exp} =
-    {valor} valor {-> valor.exp}
-    |{var} var {-> var.exp}
-    |{exp} l_par exp r_par {-> exp.exp};
+exp_atrib {-> exp_atrib} =
+      {rec} exp recebe fator {-> New exp_atrib.rec(exp,fator)}
+     |{rec_const} exp recebe_const fator {-> New exp_atrib.rec_const(exp,fator)};
 
-exp_logica {-> exp} =
-    {negacao} [esq]:exp not [dir]:fator {->New exp.a_negacao(esq.exp, dir.exp)}
-    |{ou} [esq]:exp or [dir]:fator {->New exp.a_ou(esq.exp, dir.exp)}
-    |{xou} [esq]:exp xor [dir]:fator {->New exp.a_xou(esq.exp, dir.exp)}
-    |{e} [esq]:exp and [dir]:fator {->New exp.a_e(esq.exp, dir.exp)}; 
-
-exp_atrib {-> exp} =
-     {rec} [esq]:exp recebe [dir]:fator {->New exp.a_rec(esq.exp, dir.exp)}
-     |{rec_const} [esq]:exp recebe_const [dir]:fator {->New exp.a_rec_const(esq.exp, dir.exp)};
-
-exp_comp {-> exp} =
-    {maior} [esq]:exp greater [dir]:fator {->New exp.a_maior(esq.exp, dir.exp)}
-    |{menor} [esq]:exp lesser [dir]:fator {->New exp.a_menor(esq.exp, dir.exp)}
-    |{igual} [esq]:exp twoequal [dir]:fator {->New exp.a_igual(esq.exp, dir.exp)}
-    |{maiorigual} [esq]:exp goe [dir]:fator {->New exp.a_maiorigual(esq.exp, dir.exp)}
-    |{menorigual} [esq]:exp loe [dir]:fator {->New exp.a_menorigual(esq.exp, dir.exp)}
-    |{diferente} [esq]:exp diff [dir]:fator {->New exp.a_diferente(esq.exp, dir.exp)};
+exp_comp {-> exp_comp} =
+     {maior} exp greater fator {-> New exp_comp.maior(exp,fator)}
+    |{menor} exp lesser fator {-> New exp_comp.menor(exp,fator)}
+    |{igual} exp twoequal fator {-> New exp_comp.igual(exp,fator)};
 
 Abstract Syntax Tree
-programa = bloco;
 
-bloco = declaracao* comando*;
+programa = {programa} bloco;
 
-multi_id = id;
-multi_var = var;
-multi_exp = exp;
-multi_pos = exp;
-inicialize = valor; 
+bloco = {bloco} declaracao* comando*;
 
-cmd = 
-     {cpy} [esq]:exp [dir]:exp
-    |{as_long_as} [esq]:exp [dir]:exp; 
+declaracao = 
+     {tipo} tipo multi_id*
+    |{unalt} tipo inicialize?;
 
-comando = 
-     {cmd} cmd 
-    |{if} [esq]:exp [dir]:exp;
+multi_var = {multi_var} var;
+multi_exp = {multi_exp} exp;
+multi_id = {multi_id} id;
+multi_pos = {multi_pos} exp;
+inicialize = {tvalor} valor; 
+add_pos = {add_pos} number;
+
+tipo_base = 
+     {integer} integer
+    |{real} real
+    |{symbol} symbol;
+
+tipo = 
+     {vector} tipo_base multi_pos+
+    |{tipo_base} tipo_base;
+
  
+var = 
+     {var_idpos} add_pos+
+    |{id} id;
+
+unalt = 
+     {unalt_idpos} add_pos+
+    |{id} id;
+
+valor =
+     {caractere} char
+    |{numero} number
+    |{real} float
+    |{palavra} string; 
+ 
+cmd =
+     {cpy} var exp
+    |{const} unalt
+    |{capture} multi_var* var
+    |{show} multi_exp* exp
+    |{as_long_as} exp cmd
+    |{considering} var [e1]:exp [e2]:exp [e3]:exp cmd
+    |{bloco} bloco;
 
 otherwise = {else} cmd;
- 
-declaracao = 
- {tipo} tipo multi_id*
-|{unalt } tipo inicialize?;
 
-tipo = {vector} tipo_base multi_pos | {tipo_base} tipo_base ;
+comando = 
+     {cmd} cmd
+    |{if} exp cmd otherwise?;
 
+exp = 
+     {fator} fator
+    |{soma} exp fator
+    |{subtracao} exp fator
+    |{exp_logica} exp_logica
+    |{exp_atrib} exp_atrib
+    |{exp_comp} exp_comp;
 
-tipo_base  =
-     {integer} integer 
-    |{real} real 
-    |{symbol} symbol; 
+fator =
+     {termo} termo
+    |{multiplicacao} fator termo
+    |{divisao} fator termo
+    |{modulo} fator termo;
 
-add_pos = {number} number;
- 
-var = {add_pos} add_pos;
+termo =
+     {tvalor} valor
+    |{var} var
+    |{par} exp;
 
-unalt = var;
- 
-valor = 
-     {char} 
-    |{numero} number
-    |{float} float
-    |{palavra} string;
-  
-exp = {a_soma} [esq]:exp [dir]:exp
-     | {a_subtracao} [esq]:exp [dir]:exp
-     | {a_multiplicacao} [esq]:exp [dir]:exp
-     | {a_divisao} [esq]:exp [dir]:exp
-     | {a_modulo} [esq]:exp [dir]:exp
-     | {a_negacao} [esq]:exp [dir]:exp
-     | {a_ou} [esq]:exp [dir]:exp
-     | {a_xou} [esq]:exp [dir]:exp
-     | {a_e} [esq]:exp [dir]:exp
-     | {a_rec} [esq]:exp [dir]:exp
-     | {a_rec_const} [esq]:exp [dir]:exp
-     | {a_maior} [esq]:exp [dir]:exp
-     | {a_menor} [esq]:exp [dir]:exp
-     | {a_igual} [esq]:exp [dir]:exp
-     | {a_maiorigual} [esq]:exp [dir]:exp
-     | {a_menorigual} [esq]:exp [dir]:exp
-     | {a_diferente} [esq]:exp [dir]:exp
-     | {a_id} id
-     | {a_caractere} char
-     | {a_numero} number
-     | {a_float} float
-     | {a_palavra} string
-     | {a_integer} integer
-     | {a_real} real
-     | {a_symbol} symbol
-     | {a_cpy} [esq]:exp [dir]:exp
-     | {a_as_long_as} [esq]:exp [dir]:exp
-     | {a_if} [esq]:exp [dir]:exp;
+exp_logica =
+     {negacao} exp fator
+    |{ou} exp fator
+    |{xou} exp fator
+    |{e} exp fator;
+
+exp_atrib =
+     {rec} exp fator
+    |{rec_const} exp fator;
+
+exp_comp = 
+     {maior} exp fator
+    |{menor} exp fator
+    |{igual} exp fator; 

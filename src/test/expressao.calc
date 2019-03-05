@@ -1,8 +1,4 @@
 code ordenar_numeros
 
-start   
-   integer j;
-    start
-    in case that (1) do j := (32-4)*4;
-    finish
+start    
 finish 
