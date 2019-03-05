@@ -82,8 +82,8 @@ bloco {-> bloco} =
     {bloco} start declaracao* comando* finish {-> New bloco.bloco([declaracao], [comando])};
 
 declaracao {-> declaracao} =
-     {tipo} tipo multi_id* id ppv {-> New declaracao.tipo(tipo, [multi_id])}
-    |{unalt} unalterable tipo id inicialize? ppv {-> New declaracao.unalt(tipo,inicialize)};
+     {tipo} tipo multi_id* id ppv {-> New declaracao.tipo(tipo, [multi_id], id)}
+    |{unalt} unalterable tipo id inicialize? ppv {-> New declaracao.unalt(tipo,id,inicialize)};
 
 //auxiliares
 multi_var {-> multi_var} = {multi_var} var vir {-> New multi_var.multi_var(var)}; 
@@ -98,9 +98,9 @@ tipo_base {-> tipo_base} =
     |{symbol} symbol {-> New tipo_base.symbol(symbol)};
 
 tipo {-> tipo} =
-      {vector} tipo_base vector multi_pos+ {-> New tipo.vector(tipo_base, [multi_pos])}
-     |{tipo_base} tipo_base {-> New tipo.tipo_base(tipo_base)};
-
+     {tipo_base} tipo_base {-> New tipo.tipo_base(tipo_base)}
+    |{vector} tipo_base vector multi_pos+ {-> New tipo.vector(tipo_base, [multi_pos])};
+      
 add_pos {-> add_pos} =
     {add_pos} l_col number r_col {-> New add_pos.add_pos(number)};
 
@@ -175,8 +175,8 @@ programa = {programa} bloco;
 bloco = {bloco} declaracao* comando*;
 
 declaracao = 
-     {tipo} tipo multi_id*
-    |{unalt} tipo inicialize?;
+     {tipo} tipo multi_id* id
+    |{unalt} tipo id inicialize?;
 
 multi_var = {multi_var} var;
 multi_exp = {multi_exp} exp;

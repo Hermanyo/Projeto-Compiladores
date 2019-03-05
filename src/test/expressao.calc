@@ -1,4 +1,6 @@
 code ordenar_numeros
 
-start    
+start
+  unalterable integer k = 0;
+   
 finish 

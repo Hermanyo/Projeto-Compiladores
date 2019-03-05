@@ -10,7 +10,7 @@ public class Main
  {
   try
   {
-   String arquivo = "./src/test/expressao.calc";
+  String arquivo = "./src/test/expressao.calc";
   
    Parser p =
     new Parser(
@@ -19,12 +19,14 @@ public class Main
     new FileReader(arquivo), 1024))); 
    
    Start tree = p.parse();
-   //Imprime árvore na saída padrão
-   //tree.apply(new ASTPrinter());
-   //Imprime árvore em interface gráfica
+
    tree.apply(new ASTDisplay());
+   
+   //aplicação da análise semântica em minha AST
+   tree.apply(new Semantico());
+   
   }
-  catch(LexerException | ParserException | IOException e)
+  catch(Exception e)
   {
    System.out.println(e.getMessage());
   }
