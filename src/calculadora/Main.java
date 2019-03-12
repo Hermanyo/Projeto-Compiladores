@@ -3,6 +3,9 @@ import calculadora.parser.*;
 import calculadora.lexer.*;
 import calculadora.node.*;
 import java.io.*;
+import java.util.Arrays;
+import java.util.HashMap; 
+import java.util.Map;
 
 public class Main
 {
@@ -19,14 +22,22 @@ public class Main
     new FileReader(arquivo), 1024))); 
    
    Start tree = p.parse();
-
-   tree.apply(new ASTDisplay());
    
-   //aplicação da análise semântica em minha AST
-   tree.apply(new Semantico());
+   //tree.apply(new ASTDisplay()); 
    
+   TokenMapper tm = new TokenMapper();
+    tree.apply(tm); 
+    
+   Semantico AnaliseSemantica = new Semantico(tm);
+   
+   tree.apply(AnaliseSemantica);
+   
+   for(Map.Entry<String,String[]> m :  AnaliseSemantica.getSymbolTable().entrySet()){ 
+       System.out.println("Chave: " + m.getKey() +", " + Arrays.toString(m.getValue()));
+   }
+  
   }
-  catch(Exception e)
+  catch(LexerException | ParserException | IOException e)
   {
    System.out.println(e.getMessage());
   }

@@ -1,6 +1,11 @@
 code ordenar_numeros
 
 start
-  unalterable integer k = 0;
-   
+ integer a;  
+ integer vector[5] k;
+ 
+start 
+ symbol a;
+finish 
+
 finish 

@@ -15,7 +15,7 @@ public class ASTPrinter extends DepthFirstAdapter {
 	
 	public void printNode(Node node){
 		printIndent();
-		System.out.print(node.getClass().getSimpleName().toString().replaceAll("class node\\.T?", ""));
+		System.out.print(node.getClass().getSimpleName().replaceAll("class node\\.T?", ""));
 		System.out.println(" | "+node.toString() );
 	}
 	
@@ -28,5 +28,5 @@ public class ASTPrinter extends DepthFirstAdapter {
 	@Override
 	public void defaultOut(Node node){
 		indent--;
-	}
+	} 
 }

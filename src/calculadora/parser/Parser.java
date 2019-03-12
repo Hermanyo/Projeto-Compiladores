@@ -112,7 +112,7 @@ public class Parser
             {
                 if(ign == null)
                 {
-                    ign = new LinkedList<Node>();
+                    ign = new LinkedList<>();
                 }
 
                 ign.add(this.lexer.next());
