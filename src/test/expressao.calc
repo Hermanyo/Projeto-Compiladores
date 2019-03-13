@@ -1,11 +1,12 @@
 code ordenar_numeros
 
 start
- integer a;  
- integer vector[5] k;
- 
-start 
- symbol a;
-finish 
+ integer a,b;  
+ integer vector[5] k; 
+ real b;
+ start
+  integer a,b;
+  symbol a;
+ finish 
 
 finish 

@@ -93,7 +93,7 @@ public class ASTDisplay extends DepthFirstAdapter
 	public static void expandAll(JTree tree, TreePath path)
     {
         for (Iterator i = extremalPaths(tree.getModel(), path,
-										new HashSet()).iterator();
+	   new HashSet()).iterator();
 			 i.hasNext(); )
             tree.expandPath((TreePath)i.next());
 	}

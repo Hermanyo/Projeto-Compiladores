@@ -3,9 +3,6 @@ import calculadora.parser.*;
 import calculadora.lexer.*;
 import calculadora.node.*;
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashMap; 
-import java.util.Map;
 
 public class Main
 {
@@ -32,10 +29,8 @@ public class Main
    
    tree.apply(AnaliseSemantica);
    
-   for(Map.Entry<String,String[]> m :  AnaliseSemantica.getSymbolTable().entrySet()){ 
-       System.out.println("Chave: " + m.getKey() +", " + Arrays.toString(m.getValue()));
-   }
-  
+    
+   
   }
   catch(LexerException | ParserException | IOException e)
   {
