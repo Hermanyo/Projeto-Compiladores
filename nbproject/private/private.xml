@@ -5,8 +5,8 @@
         <group>
             <file>file:/home/hermanyo/NetBeansProjects/calculadora/src/test/expressao.calc</file>
             <file>file:/home/hermanyo/NetBeansProjects/calculadora/src/calculadora/analysis/DepthFirstAdapter.java</file>
+            <file>file:/home/hermanyo/NetBeansProjects/calculadora/src/calculadora/TabelaDeSimbolos.java</file>
             <file>file:/home/hermanyo/NetBeansProjects/calculadora/src/calculadora/Semantico.java</file>
-            <file>file:/home/hermanyo/NetBeansProjects/calculadora/src/calculadora/Main.java</file>
             <file>file:/home/hermanyo/NetBeansProjects/calculadora/src/Tesauro.scc</file>
         </group>
     </open-files>

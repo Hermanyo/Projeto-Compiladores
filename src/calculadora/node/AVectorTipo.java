@@ -9,7 +9,7 @@ import calculadora.analysis.*;
 public final class AVectorTipo extends PTipo
 {
     private PTipoBase _tipoBase_;
-    private final LinkedList<PMultiPos> _multiPos_ = new LinkedList<PMultiPos>();
+    private final LinkedList<PExp> _multiPos_ = new LinkedList<PExp>();
 
     public AVectorTipo()
     {
@@ -66,14 +66,14 @@ public final class AVectorTipo extends PTipo
         this._tipoBase_ = node;
     }
 
-    public LinkedList<PMultiPos> getMultiPos()
+    public LinkedList<PExp> getMultiPos()
     {
         return this._multiPos_;
     }
 
     public void setMultiPos(List<?> list)
     {
-        for(PMultiPos e : this._multiPos_)
+        for(PExp e : this._multiPos_)
         {
             e.parent(null);
         }
@@ -81,7 +81,7 @@ public final class AVectorTipo extends PTipo
 
         for(Object obj_e : list)
         {
-            PMultiPos e = (PMultiPos) obj_e;
+            PExp e = (PExp) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
@@ -128,13 +128,13 @@ public final class AVectorTipo extends PTipo
             return;
         }
 
-        for(ListIterator<PMultiPos> i = this._multiPos_.listIterator(); i.hasNext();)
+        for(ListIterator<PExp> i = this._multiPos_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PMultiPos) newChild);
+                    i.set((PExp) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;

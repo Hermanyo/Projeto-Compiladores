@@ -5,51 +5,51 @@ package calculadora.node;
 import calculadora.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AMaiorExpComp extends PExpComp
+public final class ASubtrExp extends PExp
 {
-    private PExp _exp_;
-    private PFator _fator_;
+    private PExp _l_;
+    private PExp _r_;
 
-    public AMaiorExpComp()
+    public ASubtrExp()
     {
         // Constructor
     }
 
-    public AMaiorExpComp(
-        @SuppressWarnings("hiding") PExp _exp_,
-        @SuppressWarnings("hiding") PFator _fator_)
+    public ASubtrExp(
+        @SuppressWarnings("hiding") PExp _l_,
+        @SuppressWarnings("hiding") PExp _r_)
     {
         // Constructor
-        setExp(_exp_);
+        setL(_l_);
 
-        setFator(_fator_);
+        setR(_r_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AMaiorExpComp(
-            cloneNode(this._exp_),
-            cloneNode(this._fator_));
+        return new ASubtrExp(
+            cloneNode(this._l_),
+            cloneNode(this._r_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAMaiorExpComp(this);
+        ((Analysis) sw).caseASubtrExp(this);
     }
 
-    public PExp getExp()
+    public PExp getL()
     {
-        return this._exp_;
+        return this._l_;
     }
 
-    public void setExp(PExp node)
+    public void setL(PExp node)
     {
-        if(this._exp_ != null)
+        if(this._l_ != null)
         {
-            this._exp_.parent(null);
+            this._l_.parent(null);
         }
 
         if(node != null)
@@ -62,19 +62,19 @@ public final class AMaiorExpComp extends PExpComp
             node.parent(this);
         }
 
-        this._exp_ = node;
+        this._l_ = node;
     }
 
-    public PFator getFator()
+    public PExp getR()
     {
-        return this._fator_;
+        return this._r_;
     }
 
-    public void setFator(PFator node)
+    public void setR(PExp node)
     {
-        if(this._fator_ != null)
+        if(this._r_ != null)
         {
-            this._fator_.parent(null);
+            this._r_.parent(null);
         }
 
         if(node != null)
@@ -87,30 +87,30 @@ public final class AMaiorExpComp extends PExpComp
             node.parent(this);
         }
 
-        this._fator_ = node;
+        this._r_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._exp_)
-            + toString(this._fator_);
+            + toString(this._l_)
+            + toString(this._r_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._exp_ == child)
+        if(this._l_ == child)
         {
-            this._exp_ = null;
+            this._l_ = null;
             return;
         }
 
-        if(this._fator_ == child)
+        if(this._r_ == child)
         {
-            this._fator_ = null;
+            this._r_ = null;
             return;
         }
 
@@ -121,15 +121,15 @@ public final class AMaiorExpComp extends PExpComp
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._exp_ == oldChild)
+        if(this._l_ == oldChild)
         {
-            setExp((PExp) newChild);
+            setL((PExp) newChild);
             return;
         }
 
-        if(this._fator_ == oldChild)
+        if(this._r_ == oldChild)
         {
-            setFator((PFator) newChild);
+            setR((PExp) newChild);
             return;
         }
 

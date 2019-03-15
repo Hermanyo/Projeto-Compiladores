@@ -8,7 +8,7 @@ import calculadora.analysis.*;
 @SuppressWarnings("nls")
 public final class AUnaltIdposUnalt extends PUnalt
 {
-    private final LinkedList<PAddPos> _addPos_ = new LinkedList<PAddPos>();
+    private final LinkedList<TNumber> _addPos_ = new LinkedList<TNumber>();
 
     public AUnaltIdposUnalt()
     {
@@ -36,14 +36,14 @@ public final class AUnaltIdposUnalt extends PUnalt
         ((Analysis) sw).caseAUnaltIdposUnalt(this);
     }
 
-    public LinkedList<PAddPos> getAddPos()
+    public LinkedList<TNumber> getAddPos()
     {
         return this._addPos_;
     }
 
     public void setAddPos(List<?> list)
     {
-        for(PAddPos e : this._addPos_)
+        for(TNumber e : this._addPos_)
         {
             e.parent(null);
         }
@@ -51,7 +51,7 @@ public final class AUnaltIdposUnalt extends PUnalt
 
         for(Object obj_e : list)
         {
-            PAddPos e = (PAddPos) obj_e;
+            TNumber e = (TNumber) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
@@ -85,13 +85,13 @@ public final class AUnaltIdposUnalt extends PUnalt
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<PAddPos> i = this._addPos_.listIterator(); i.hasNext();)
+        for(ListIterator<TNumber> i = this._addPos_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PAddPos) newChild);
+                    i.set((TNumber) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;

@@ -8,8 +8,7 @@ import calculadora.analysis.*;
 @SuppressWarnings("nls")
 public final class ACaptureCmd extends PCmd
 {
-    private final LinkedList<PMultiVar> _multiVar_ = new LinkedList<PMultiVar>();
-    private PVar _var_;
+    private final LinkedList<PVar> _multiVar_ = new LinkedList<PVar>();
 
     public ACaptureCmd()
     {
@@ -17,13 +16,10 @@ public final class ACaptureCmd extends PCmd
     }
 
     public ACaptureCmd(
-        @SuppressWarnings("hiding") List<?> _multiVar_,
-        @SuppressWarnings("hiding") PVar _var_)
+        @SuppressWarnings("hiding") List<?> _multiVar_)
     {
         // Constructor
         setMultiVar(_multiVar_);
-
-        setVar(_var_);
 
     }
 
@@ -31,8 +27,7 @@ public final class ACaptureCmd extends PCmd
     public Object clone()
     {
         return new ACaptureCmd(
-            cloneList(this._multiVar_),
-            cloneNode(this._var_));
+            cloneList(this._multiVar_));
     }
 
     @Override
@@ -41,14 +36,14 @@ public final class ACaptureCmd extends PCmd
         ((Analysis) sw).caseACaptureCmd(this);
     }
 
-    public LinkedList<PMultiVar> getMultiVar()
+    public LinkedList<PVar> getMultiVar()
     {
         return this._multiVar_;
     }
 
     public void setMultiVar(List<?> list)
     {
-        for(PMultiVar e : this._multiVar_)
+        for(PVar e : this._multiVar_)
         {
             e.parent(null);
         }
@@ -56,7 +51,7 @@ public final class ACaptureCmd extends PCmd
 
         for(Object obj_e : list)
         {
-            PMultiVar e = (PMultiVar) obj_e;
+            PVar e = (PVar) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
@@ -67,37 +62,11 @@ public final class ACaptureCmd extends PCmd
         }
     }
 
-    public PVar getVar()
-    {
-        return this._var_;
-    }
-
-    public void setVar(PVar node)
-    {
-        if(this._var_ != null)
-        {
-            this._var_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._var_ = node;
-    }
-
     @Override
     public String toString()
     {
         return ""
-            + toString(this._multiVar_)
-            + toString(this._var_);
+            + toString(this._multiVar_);
     }
 
     @Override
@@ -109,12 +78,6 @@ public final class ACaptureCmd extends PCmd
             return;
         }
 
-        if(this._var_ == child)
-        {
-            this._var_ = null;
-            return;
-        }
-
         throw new RuntimeException("Not a child.");
     }
 
@@ -122,13 +85,13 @@ public final class ACaptureCmd extends PCmd
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<PMultiVar> i = this._multiVar_.listIterator(); i.hasNext();)
+        for(ListIterator<PVar> i = this._multiVar_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PMultiVar) newChild);
+                    i.set((PVar) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;
@@ -138,12 +101,6 @@ public final class ACaptureCmd extends PCmd
                 oldChild.parent(null);
                 return;
             }
-        }
-
-        if(this._var_ == oldChild)
-        {
-            setVar((PVar) newChild);
-            return;
         }
 
         throw new RuntimeException("Not a child.");

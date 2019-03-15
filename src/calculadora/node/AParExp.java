@@ -5,46 +5,46 @@ package calculadora.node;
 import calculadora.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AFatorExp extends PExp
+public final class AParExp extends PExp
 {
-    private PFator _fator_;
+    private PExp _exp_;
 
-    public AFatorExp()
+    public AParExp()
     {
         // Constructor
     }
 
-    public AFatorExp(
-        @SuppressWarnings("hiding") PFator _fator_)
+    public AParExp(
+        @SuppressWarnings("hiding") PExp _exp_)
     {
         // Constructor
-        setFator(_fator_);
+        setExp(_exp_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AFatorExp(
-            cloneNode(this._fator_));
+        return new AParExp(
+            cloneNode(this._exp_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAFatorExp(this);
+        ((Analysis) sw).caseAParExp(this);
     }
 
-    public PFator getFator()
+    public PExp getExp()
     {
-        return this._fator_;
+        return this._exp_;
     }
 
-    public void setFator(PFator node)
+    public void setExp(PExp node)
     {
-        if(this._fator_ != null)
+        if(this._exp_ != null)
         {
-            this._fator_.parent(null);
+            this._exp_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class AFatorExp extends PExp
             node.parent(this);
         }
 
-        this._fator_ = node;
+        this._exp_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._fator_);
+            + toString(this._exp_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._fator_ == child)
+        if(this._exp_ == child)
         {
-            this._fator_ = null;
+            this._exp_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class AFatorExp extends PExp
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._fator_ == oldChild)
+        if(this._exp_ == oldChild)
         {
-            setFator((PFator) newChild);
+            setExp((PExp) newChild);
             return;
         }
 

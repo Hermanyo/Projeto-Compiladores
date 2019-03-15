@@ -29,7 +29,7 @@ public class Main
    
    tree.apply(AnaliseSemantica);
    
-    
+   AnaliseSemantica.printSymbolTable();
    
   }
   catch(LexerException | ParserException | IOException e)

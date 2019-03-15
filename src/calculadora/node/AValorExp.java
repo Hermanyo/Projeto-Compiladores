@@ -5,46 +5,46 @@ package calculadora.node;
 import calculadora.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AExpAtribExp extends PExp
+public final class AValorExp extends PExp
 {
-    private PExpAtrib _expAtrib_;
+    private PValor _valor_;
 
-    public AExpAtribExp()
+    public AValorExp()
     {
         // Constructor
     }
 
-    public AExpAtribExp(
-        @SuppressWarnings("hiding") PExpAtrib _expAtrib_)
+    public AValorExp(
+        @SuppressWarnings("hiding") PValor _valor_)
     {
         // Constructor
-        setExpAtrib(_expAtrib_);
+        setValor(_valor_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AExpAtribExp(
-            cloneNode(this._expAtrib_));
+        return new AValorExp(
+            cloneNode(this._valor_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAExpAtribExp(this);
+        ((Analysis) sw).caseAValorExp(this);
     }
 
-    public PExpAtrib getExpAtrib()
+    public PValor getValor()
     {
-        return this._expAtrib_;
+        return this._valor_;
     }
 
-    public void setExpAtrib(PExpAtrib node)
+    public void setValor(PValor node)
     {
-        if(this._expAtrib_ != null)
+        if(this._valor_ != null)
         {
-            this._expAtrib_.parent(null);
+            this._valor_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class AExpAtribExp extends PExp
             node.parent(this);
         }
 
-        this._expAtrib_ = node;
+        this._valor_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._expAtrib_);
+            + toString(this._valor_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._expAtrib_ == child)
+        if(this._valor_ == child)
         {
-            this._expAtrib_ = null;
+            this._valor_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class AExpAtribExp extends PExp
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._expAtrib_ == oldChild)
+        if(this._valor_ == oldChild)
         {
-            setExpAtrib((PExpAtrib) newChild);
+            setValor((PValor) newChild);
             return;
         }
 

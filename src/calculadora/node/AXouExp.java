@@ -5,51 +5,51 @@ package calculadora.node;
 import calculadora.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ADivisaoFator extends PFator
+public final class AXouExp extends PExp
 {
-    private PFator _fator_;
-    private PTermo _termo_;
+    private PExp _left_;
+    private PExp _right_;
 
-    public ADivisaoFator()
+    public AXouExp()
     {
         // Constructor
     }
 
-    public ADivisaoFator(
-        @SuppressWarnings("hiding") PFator _fator_,
-        @SuppressWarnings("hiding") PTermo _termo_)
+    public AXouExp(
+        @SuppressWarnings("hiding") PExp _left_,
+        @SuppressWarnings("hiding") PExp _right_)
     {
         // Constructor
-        setFator(_fator_);
+        setLeft(_left_);
 
-        setTermo(_termo_);
+        setRight(_right_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new ADivisaoFator(
-            cloneNode(this._fator_),
-            cloneNode(this._termo_));
+        return new AXouExp(
+            cloneNode(this._left_),
+            cloneNode(this._right_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseADivisaoFator(this);
+        ((Analysis) sw).caseAXouExp(this);
     }
 
-    public PFator getFator()
+    public PExp getLeft()
     {
-        return this._fator_;
+        return this._left_;
     }
 
-    public void setFator(PFator node)
+    public void setLeft(PExp node)
     {
-        if(this._fator_ != null)
+        if(this._left_ != null)
         {
-            this._fator_.parent(null);
+            this._left_.parent(null);
         }
 
         if(node != null)
@@ -62,19 +62,19 @@ public final class ADivisaoFator extends PFator
             node.parent(this);
         }
 
-        this._fator_ = node;
+        this._left_ = node;
     }
 
-    public PTermo getTermo()
+    public PExp getRight()
     {
-        return this._termo_;
+        return this._right_;
     }
 
-    public void setTermo(PTermo node)
+    public void setRight(PExp node)
     {
-        if(this._termo_ != null)
+        if(this._right_ != null)
         {
-            this._termo_.parent(null);
+            this._right_.parent(null);
         }
 
         if(node != null)
@@ -87,30 +87,30 @@ public final class ADivisaoFator extends PFator
             node.parent(this);
         }
 
-        this._termo_ = node;
+        this._right_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._fator_)
-            + toString(this._termo_);
+            + toString(this._left_)
+            + toString(this._right_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._fator_ == child)
+        if(this._left_ == child)
         {
-            this._fator_ = null;
+            this._left_ = null;
             return;
         }
 
-        if(this._termo_ == child)
+        if(this._right_ == child)
         {
-            this._termo_ = null;
+            this._right_ = null;
             return;
         }
 
@@ -121,15 +121,15 @@ public final class ADivisaoFator extends PFator
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._fator_ == oldChild)
+        if(this._left_ == oldChild)
         {
-            setFator((PFator) newChild);
+            setLeft((PExp) newChild);
             return;
         }
 
-        if(this._termo_ == oldChild)
+        if(this._right_ == oldChild)
         {
-            setTermo((PTermo) newChild);
+            setRight((PExp) newChild);
             return;
         }
 

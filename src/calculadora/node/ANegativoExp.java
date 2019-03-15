@@ -5,46 +5,46 @@ package calculadora.node;
 import calculadora.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AParTermo extends PTermo
+public final class ANegativoExp extends PExp
 {
-    private PExp _exp_;
+    private PExp _right_;
 
-    public AParTermo()
+    public ANegativoExp()
     {
         // Constructor
     }
 
-    public AParTermo(
-        @SuppressWarnings("hiding") PExp _exp_)
+    public ANegativoExp(
+        @SuppressWarnings("hiding") PExp _right_)
     {
         // Constructor
-        setExp(_exp_);
+        setRight(_right_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AParTermo(
-            cloneNode(this._exp_));
+        return new ANegativoExp(
+            cloneNode(this._right_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAParTermo(this);
+        ((Analysis) sw).caseANegativoExp(this);
     }
 
-    public PExp getExp()
+    public PExp getRight()
     {
-        return this._exp_;
+        return this._right_;
     }
 
-    public void setExp(PExp node)
+    public void setRight(PExp node)
     {
-        if(this._exp_ != null)
+        if(this._right_ != null)
         {
-            this._exp_.parent(null);
+            this._right_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class AParTermo extends PTermo
             node.parent(this);
         }
 
-        this._exp_ = node;
+        this._right_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._exp_);
+            + toString(this._right_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._exp_ == child)
+        if(this._right_ == child)
         {
-            this._exp_ = null;
+            this._right_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class AParTermo extends PTermo
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._exp_ == oldChild)
+        if(this._right_ == oldChild)
         {
-            setExp((PExp) newChild);
+            setRight((PExp) newChild);
             return;
         }
 

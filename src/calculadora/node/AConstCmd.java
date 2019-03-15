@@ -8,6 +8,7 @@ import calculadora.analysis.*;
 public final class AConstCmd extends PCmd
 {
     private PUnalt _unalt_;
+    private PExp _exp_;
 
     public AConstCmd()
     {
@@ -15,10 +16,13 @@ public final class AConstCmd extends PCmd
     }
 
     public AConstCmd(
-        @SuppressWarnings("hiding") PUnalt _unalt_)
+        @SuppressWarnings("hiding") PUnalt _unalt_,
+        @SuppressWarnings("hiding") PExp _exp_)
     {
         // Constructor
         setUnalt(_unalt_);
+
+        setExp(_exp_);
 
     }
 
@@ -26,7 +30,8 @@ public final class AConstCmd extends PCmd
     public Object clone()
     {
         return new AConstCmd(
-            cloneNode(this._unalt_));
+            cloneNode(this._unalt_),
+            cloneNode(this._exp_));
     }
 
     @Override
@@ -60,11 +65,37 @@ public final class AConstCmd extends PCmd
         this._unalt_ = node;
     }
 
+    public PExp getExp()
+    {
+        return this._exp_;
+    }
+
+    public void setExp(PExp node)
+    {
+        if(this._exp_ != null)
+        {
+            this._exp_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._exp_ = node;
+    }
+
     @Override
     public String toString()
     {
         return ""
-            + toString(this._unalt_);
+            + toString(this._unalt_)
+            + toString(this._exp_);
     }
 
     @Override
@@ -74,6 +105,12 @@ public final class AConstCmd extends PCmd
         if(this._unalt_ == child)
         {
             this._unalt_ = null;
+            return;
+        }
+
+        if(this._exp_ == child)
+        {
+            this._exp_ = null;
             return;
         }
 
@@ -87,6 +124,12 @@ public final class AConstCmd extends PCmd
         if(this._unalt_ == oldChild)
         {
             setUnalt((PUnalt) newChild);
+            return;
+        }
+
+        if(this._exp_ == oldChild)
+        {
+            setExp((PExp) newChild);
             return;
         }
 

@@ -5,16 +5,16 @@ package calculadora.node;
 import calculadora.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AVarTermo extends PTermo
+public final class AVarExp extends PExp
 {
     private PVar _var_;
 
-    public AVarTermo()
+    public AVarExp()
     {
         // Constructor
     }
 
-    public AVarTermo(
+    public AVarExp(
         @SuppressWarnings("hiding") PVar _var_)
     {
         // Constructor
@@ -25,14 +25,14 @@ public final class AVarTermo extends PTermo
     @Override
     public Object clone()
     {
-        return new AVarTermo(
+        return new AVarExp(
             cloneNode(this._var_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAVarTermo(this);
+        ((Analysis) sw).caseAVarExp(this);
     }
 
     public PVar getVar()

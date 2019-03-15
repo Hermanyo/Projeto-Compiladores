@@ -5,51 +5,51 @@ package calculadora.node;
 import calculadora.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AEExpLogica extends PExpLogica
+public final class ARecConstExp extends PExp
 {
-    private PExp _exp_;
-    private PFator _fator_;
+    private PExp _left_;
+    private PExp _right_;
 
-    public AEExpLogica()
+    public ARecConstExp()
     {
         // Constructor
     }
 
-    public AEExpLogica(
-        @SuppressWarnings("hiding") PExp _exp_,
-        @SuppressWarnings("hiding") PFator _fator_)
+    public ARecConstExp(
+        @SuppressWarnings("hiding") PExp _left_,
+        @SuppressWarnings("hiding") PExp _right_)
     {
         // Constructor
-        setExp(_exp_);
+        setLeft(_left_);
 
-        setFator(_fator_);
+        setRight(_right_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AEExpLogica(
-            cloneNode(this._exp_),
-            cloneNode(this._fator_));
+        return new ARecConstExp(
+            cloneNode(this._left_),
+            cloneNode(this._right_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAEExpLogica(this);
+        ((Analysis) sw).caseARecConstExp(this);
     }
 
-    public PExp getExp()
+    public PExp getLeft()
     {
-        return this._exp_;
+        return this._left_;
     }
 
-    public void setExp(PExp node)
+    public void setLeft(PExp node)
     {
-        if(this._exp_ != null)
+        if(this._left_ != null)
         {
-            this._exp_.parent(null);
+            this._left_.parent(null);
         }
 
         if(node != null)
@@ -62,19 +62,19 @@ public final class AEExpLogica extends PExpLogica
             node.parent(this);
         }
 
-        this._exp_ = node;
+        this._left_ = node;
     }
 
-    public PFator getFator()
+    public PExp getRight()
     {
-        return this._fator_;
+        return this._right_;
     }
 
-    public void setFator(PFator node)
+    public void setRight(PExp node)
     {
-        if(this._fator_ != null)
+        if(this._right_ != null)
         {
-            this._fator_.parent(null);
+            this._right_.parent(null);
         }
 
         if(node != null)
@@ -87,30 +87,30 @@ public final class AEExpLogica extends PExpLogica
             node.parent(this);
         }
 
-        this._fator_ = node;
+        this._right_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._exp_)
-            + toString(this._fator_);
+            + toString(this._left_)
+            + toString(this._right_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._exp_ == child)
+        if(this._left_ == child)
         {
-            this._exp_ = null;
+            this._left_ = null;
             return;
         }
 
-        if(this._fator_ == child)
+        if(this._right_ == child)
         {
-            this._fator_ = null;
+            this._right_ = null;
             return;
         }
 
@@ -121,15 +121,15 @@ public final class AEExpLogica extends PExpLogica
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._exp_ == oldChild)
+        if(this._left_ == oldChild)
         {
-            setExp((PExp) newChild);
+            setLeft((PExp) newChild);
             return;
         }
 
-        if(this._fator_ == oldChild)
+        if(this._right_ == oldChild)
         {
-            setFator((PFator) newChild);
+            setRight((PExp) newChild);
             return;
         }
 

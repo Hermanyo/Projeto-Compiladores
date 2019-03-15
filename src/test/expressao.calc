@@ -2,11 +2,11 @@ code ordenar_numeros
 
 start
  integer a,b;  
- integer vector[5] k; 
- real b;
- start
-  integer a,b;
-  symbol a;
- finish 
-
+ integer vector[5] k, p;  
+ unalterable integer g=5;
+ {unalterable integer y = "aaaaaa";}
+ unalterable integer vector[2] v;    
+   
+   a := 3; 
+   show(a);
 finish 

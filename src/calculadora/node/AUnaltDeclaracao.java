@@ -9,7 +9,7 @@ public final class AUnaltDeclaracao extends PDeclaracao
 {
     private PTipo _tipo_;
     private TId _id_;
-    private PInicialize _inicialize_;
+    private PValor _inicialize_;
 
     public AUnaltDeclaracao()
     {
@@ -19,7 +19,7 @@ public final class AUnaltDeclaracao extends PDeclaracao
     public AUnaltDeclaracao(
         @SuppressWarnings("hiding") PTipo _tipo_,
         @SuppressWarnings("hiding") TId _id_,
-        @SuppressWarnings("hiding") PInicialize _inicialize_)
+        @SuppressWarnings("hiding") PValor _inicialize_)
     {
         // Constructor
         setTipo(_tipo_);
@@ -95,12 +95,12 @@ public final class AUnaltDeclaracao extends PDeclaracao
         this._id_ = node;
     }
 
-    public PInicialize getInicialize()
+    public PValor getInicialize()
     {
         return this._inicialize_;
     }
 
-    public void setInicialize(PInicialize node)
+    public void setInicialize(PValor node)
     {
         if(this._inicialize_ != null)
         {
@@ -172,7 +172,7 @@ public final class AUnaltDeclaracao extends PDeclaracao
 
         if(this._inicialize_ == oldChild)
         {
-            setInicialize((PInicialize) newChild);
+            setInicialize((PValor) newChild);
             return;
         }
 

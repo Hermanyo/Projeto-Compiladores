@@ -6,44 +6,39 @@ import java.util.*;
 import calculadora.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ATipoDeclaracao extends PDeclaracao
+public final class ADeclaracaoDeclaracao extends PDeclaracao
 {
     private PTipo _tipo_;
-    private final LinkedList<PMultiId> _multiId_ = new LinkedList<PMultiId>();
-    private TId _id_;
+    private final LinkedList<TId> _idList_ = new LinkedList<TId>();
 
-    public ATipoDeclaracao()
+    public ADeclaracaoDeclaracao()
     {
         // Constructor
     }
 
-    public ATipoDeclaracao(
+    public ADeclaracaoDeclaracao(
         @SuppressWarnings("hiding") PTipo _tipo_,
-        @SuppressWarnings("hiding") List<?> _multiId_,
-        @SuppressWarnings("hiding") TId _id_)
+        @SuppressWarnings("hiding") List<?> _idList_)
     {
         // Constructor
         setTipo(_tipo_);
 
-        setMultiId(_multiId_);
-
-        setId(_id_);
+        setIdList(_idList_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new ATipoDeclaracao(
+        return new ADeclaracaoDeclaracao(
             cloneNode(this._tipo_),
-            cloneList(this._multiId_),
-            cloneNode(this._id_));
+            cloneList(this._idList_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseATipoDeclaracao(this);
+        ((Analysis) sw).caseADeclaracaoDeclaracao(this);
     }
 
     public PTipo getTipo()
@@ -71,55 +66,30 @@ public final class ATipoDeclaracao extends PDeclaracao
         this._tipo_ = node;
     }
 
-    public LinkedList<PMultiId> getMultiId()
+    public LinkedList<TId> getIdList()
     {
-        return this._multiId_;
+        return this._idList_;
     }
 
-    public void setMultiId(List<?> list)
+    public void setIdList(List<?> list)
     {
-        for(PMultiId e : this._multiId_)
+        for(TId e : this._idList_)
         {
             e.parent(null);
         }
-        this._multiId_.clear();
+        this._idList_.clear();
 
         for(Object obj_e : list)
         {
-            PMultiId e = (PMultiId) obj_e;
+            TId e = (TId) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
             }
 
             e.parent(this);
-            this._multiId_.add(e);
+            this._idList_.add(e);
         }
-    }
-
-    public TId getId()
-    {
-        return this._id_;
-    }
-
-    public void setId(TId node)
-    {
-        if(this._id_ != null)
-        {
-            this._id_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._id_ = node;
     }
 
     @Override
@@ -127,8 +97,7 @@ public final class ATipoDeclaracao extends PDeclaracao
     {
         return ""
             + toString(this._tipo_)
-            + toString(this._multiId_)
-            + toString(this._id_);
+            + toString(this._idList_);
     }
 
     @Override
@@ -141,14 +110,8 @@ public final class ATipoDeclaracao extends PDeclaracao
             return;
         }
 
-        if(this._multiId_.remove(child))
+        if(this._idList_.remove(child))
         {
-            return;
-        }
-
-        if(this._id_ == child)
-        {
-            this._id_ = null;
             return;
         }
 
@@ -165,13 +128,13 @@ public final class ATipoDeclaracao extends PDeclaracao
             return;
         }
 
-        for(ListIterator<PMultiId> i = this._multiId_.listIterator(); i.hasNext();)
+        for(ListIterator<TId> i = this._idList_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PMultiId) newChild);
+                    i.set((TId) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;
@@ -181,12 +144,6 @@ public final class ATipoDeclaracao extends PDeclaracao
                 oldChild.parent(null);
                 return;
             }
-        }
-
-        if(this._id_ == oldChild)
-        {
-            setId((TId) newChild);
-            return;
         }
 
         throw new RuntimeException("Not a child.");
