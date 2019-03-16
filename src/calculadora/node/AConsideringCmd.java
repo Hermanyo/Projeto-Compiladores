@@ -8,9 +8,9 @@ import calculadora.analysis.*;
 public final class AConsideringCmd extends PCmd
 {
     private PVar _var_;
-    private PExp _e1_;
-    private PExp _e2_;
-    private PExp _e3_;
+    private PExp _exp1_;
+    private PExp _exp2_;
+    private PExp _exp3_;
     private PCmd _cmd_;
 
     public AConsideringCmd()
@@ -20,19 +20,19 @@ public final class AConsideringCmd extends PCmd
 
     public AConsideringCmd(
         @SuppressWarnings("hiding") PVar _var_,
-        @SuppressWarnings("hiding") PExp _e1_,
-        @SuppressWarnings("hiding") PExp _e2_,
-        @SuppressWarnings("hiding") PExp _e3_,
+        @SuppressWarnings("hiding") PExp _exp1_,
+        @SuppressWarnings("hiding") PExp _exp2_,
+        @SuppressWarnings("hiding") PExp _exp3_,
         @SuppressWarnings("hiding") PCmd _cmd_)
     {
         // Constructor
         setVar(_var_);
 
-        setE1(_e1_);
+        setExp1(_exp1_);
 
-        setE2(_e2_);
+        setExp2(_exp2_);
 
-        setE3(_e3_);
+        setExp3(_exp3_);
 
         setCmd(_cmd_);
 
@@ -43,9 +43,9 @@ public final class AConsideringCmd extends PCmd
     {
         return new AConsideringCmd(
             cloneNode(this._var_),
-            cloneNode(this._e1_),
-            cloneNode(this._e2_),
-            cloneNode(this._e3_),
+            cloneNode(this._exp1_),
+            cloneNode(this._exp2_),
+            cloneNode(this._exp3_),
             cloneNode(this._cmd_));
     }
 
@@ -80,16 +80,16 @@ public final class AConsideringCmd extends PCmd
         this._var_ = node;
     }
 
-    public PExp getE1()
+    public PExp getExp1()
     {
-        return this._e1_;
+        return this._exp1_;
     }
 
-    public void setE1(PExp node)
+    public void setExp1(PExp node)
     {
-        if(this._e1_ != null)
+        if(this._exp1_ != null)
         {
-            this._e1_.parent(null);
+            this._exp1_.parent(null);
         }
 
         if(node != null)
@@ -102,19 +102,19 @@ public final class AConsideringCmd extends PCmd
             node.parent(this);
         }
 
-        this._e1_ = node;
+        this._exp1_ = node;
     }
 
-    public PExp getE2()
+    public PExp getExp2()
     {
-        return this._e2_;
+        return this._exp2_;
     }
 
-    public void setE2(PExp node)
+    public void setExp2(PExp node)
     {
-        if(this._e2_ != null)
+        if(this._exp2_ != null)
         {
-            this._e2_.parent(null);
+            this._exp2_.parent(null);
         }
 
         if(node != null)
@@ -127,19 +127,19 @@ public final class AConsideringCmd extends PCmd
             node.parent(this);
         }
 
-        this._e2_ = node;
+        this._exp2_ = node;
     }
 
-    public PExp getE3()
+    public PExp getExp3()
     {
-        return this._e3_;
+        return this._exp3_;
     }
 
-    public void setE3(PExp node)
+    public void setExp3(PExp node)
     {
-        if(this._e3_ != null)
+        if(this._exp3_ != null)
         {
-            this._e3_.parent(null);
+            this._exp3_.parent(null);
         }
 
         if(node != null)
@@ -152,7 +152,7 @@ public final class AConsideringCmd extends PCmd
             node.parent(this);
         }
 
-        this._e3_ = node;
+        this._exp3_ = node;
     }
 
     public PCmd getCmd()
@@ -185,9 +185,9 @@ public final class AConsideringCmd extends PCmd
     {
         return ""
             + toString(this._var_)
-            + toString(this._e1_)
-            + toString(this._e2_)
-            + toString(this._e3_)
+            + toString(this._exp1_)
+            + toString(this._exp2_)
+            + toString(this._exp3_)
             + toString(this._cmd_);
     }
 
@@ -201,21 +201,21 @@ public final class AConsideringCmd extends PCmd
             return;
         }
 
-        if(this._e1_ == child)
+        if(this._exp1_ == child)
         {
-            this._e1_ = null;
+            this._exp1_ = null;
             return;
         }
 
-        if(this._e2_ == child)
+        if(this._exp2_ == child)
         {
-            this._e2_ = null;
+            this._exp2_ = null;
             return;
         }
 
-        if(this._e3_ == child)
+        if(this._exp3_ == child)
         {
-            this._e3_ = null;
+            this._exp3_ = null;
             return;
         }
 
@@ -238,21 +238,21 @@ public final class AConsideringCmd extends PCmd
             return;
         }
 
-        if(this._e1_ == oldChild)
+        if(this._exp1_ == oldChild)
         {
-            setE1((PExp) newChild);
+            setExp1((PExp) newChild);
             return;
         }
 
-        if(this._e2_ == oldChild)
+        if(this._exp2_ == oldChild)
         {
-            setE2((PExp) newChild);
+            setExp2((PExp) newChild);
             return;
         }
 
-        if(this._e3_ == oldChild)
+        if(this._exp3_ == oldChild)
         {
-            setE3((PExp) newChild);
+            setExp3((PExp) newChild);
             return;
         }
 

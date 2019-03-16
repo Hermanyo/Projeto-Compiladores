@@ -3,10 +3,15 @@ code ordenar_numeros
 start
  integer a,b;  
  integer vector[5] k, p;  
+ real n;
+ symbol t; 
  unalterable integer g=5;
  {unalterable integer y = "aaaaaa";}
- unalterable integer vector[2] v;    
-   
-   a := 3; 
-   show(a);
+ unalterable integer vector[2] v;  
+  {show(a);}
+
+  n := 3.2;
+  a := n; 
+
+  
 finish 

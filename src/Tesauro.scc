@@ -125,7 +125,7 @@ cmd {-> cmd} =
     |{capture} capture l_par multi_var* var r_par ppv {-> New cmd.capture([var.var, multi_var.var])}
     |{show} show l_par multi_exp* exp r_par ppv  {-> New cmd.show([exp.exp, multi_exp.exp])}
     |{as_long_as} [as1]:as long [as2]:as l_par exp r_par do cmd {-> New cmd.as_long_as(exp, cmd)}
-    |{considering} considering var from [e1]:exp to [e2]:exp by [e3]:exp do cmd {-> New cmd.considering(var,e1,e2,e3,cmd)}
+    |{considering} considering var from [exp1]:exp to [exp2]:exp by [exp3]:exp do cmd {-> New cmd.considering(var,exp1.exp,exp2.exp,exp3.exp,cmd)}
     |{bloco} bloco {-> New cmd.bloco(bloco)};
  
 otherwise {-> otherwise} = {else} else cmd {-> New otherwise.else(cmd)};
@@ -200,7 +200,7 @@ cmd =
     |{capture} [multi_var]:var+
     |{show} [multi_exp]:exp+
     |{as_long_as} exp cmd
-    |{considering} var [e1]:exp [e2]:exp [e3]:exp cmd
+    |{considering} var [exp1]:exp [exp2]:exp [exp3]:exp cmd
     |{bloco} bloco;
 
 otherwise = {else} cmd;

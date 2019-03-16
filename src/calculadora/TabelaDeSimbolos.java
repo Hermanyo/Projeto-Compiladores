@@ -1,7 +1,5 @@
  package calculadora;
 
-import calculadora.node.PTipo;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +32,7 @@ public class TabelaDeSimbolos {
     }
     //HashMap<[Variavel,categoria, definido, escopo], tipo>
     public boolean insert(String id,Object value,String categ,int scope, String type, boolean verify){
+         
          List<Object> columns = new ArrayList<>();
          int checksum = this.hash(id);
          columns.add(id); 
