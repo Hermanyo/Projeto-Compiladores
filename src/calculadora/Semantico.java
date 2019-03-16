@@ -10,9 +10,12 @@ import calculadora.node.ACpyCmd;
 import calculadora.node.ADeclaracaoDeclaracao; 
 import calculadora.node.AIfComando;
 import calculadora.node.ANegativoExp;
+import calculadora.node.AProgramaPrograma;
 import calculadora.node.AShowCmd;
 import calculadora.node.AUnaltDeclaracao;
 import calculadora.node.AValorExp;
+import calculadora.node.AVarExp;
+import calculadora.node.Node;
 import calculadora.node.PExp;
 import calculadora.node.PTipo;
 import calculadora.node.PValor;
@@ -55,20 +58,50 @@ public class Semantico extends DepthFirstAdapter {
         
             return "symbol";
     }
+    public void printError(String error, String id_ou_tipo, String exp,Node node){
+        switch(error){
+            case "declaracao":
+                System.err.println("Erro: variável \"" + id_ou_tipo.trim() + "\" na linha " +  tm.getLine(node) + " já foi declarada.");
+            break;
+            case "semDeclaracao":
+                 System.err.println("Erro: variável \"" + id_ou_tipo.trim() + "\" na linha " +  tm.getLine(node) + " não foi declarada.");
+            break;
+            case "tipo":
+                System.err.print("Erro: variável \"" + id_ou_tipo.trim() + "\" na linha " + tm.getLine(node) + " não pode receber \"" + exp.trim() + "\""); 
+                System.err.println(" (o tipo de  \"" + id_ou_tipo.trim() + "\" é diferente de \"" + exp.trim() +"\" ).");
+            break;
+            case "semTipo":
+                System.err.println("\""+ id_ou_tipo.trim() + "\"" + " na linha "+ tm.getLine(node) +" não é um tipo existente.");
+            break;
+            case "constante":
+                System.err.println("Erro: variável \"" + id_ou_tipo.trim() + "\" na linha " + tm.getLine(node) + " é \"unalterable.\"");
+            break;
+            case "expressao":
+                System.err.println("Erro: a expressão na linha " + tm.getLine(node) + " não é válida.");
+            break;
+            default:
+              System.err.println("Erro: ");
+        }
+    }
     @Override
-    public void inStart(Start node){
+    public void inStart(Start node){  
 //               System.out.println("-------------------------------------------------");
 //               System.out.println("Iniciando análise semântica...");
         }
 
      @Override
-     public void outStart(Start node){
+     public void outStart(Start node){ 
 //            System.out.println("-------------------------------------------------");
 //            System.out.println("Fim da análise semântica");
 //            System.out.println("-------------------------------------------------");
 
     }
-
+        @Override
+    public void outAProgramaPrograma(AProgramaPrograma node){
+         if(node.getName() == null){
+             System.err.println("Erro: nome do programa é inválido");
+         }
+    }
     @Override
     public void inABlocoBloco(ABlocoBloco node){
         this.BLOCOS.add(new TabelaDeSimbolos());
@@ -102,13 +135,12 @@ public class Semantico extends DepthFirstAdapter {
               
                  if(this.BLOCOS.get(escopo).insert(e.toString().trim(), null, vet, (this.escopo+1), tipo.toString().trim(), true)){
           //        System.out.println("-->Inserir ( "+ e.toString() +", " + null + ", " +vet+", " + (this.escopo+1) + ", " + tipo.toString() +")"); 
-                 }else 
-                  System.out.println("\nmulti Erro: variável \"" + e.toString().trim() + "\" na linha " +  tm.getLine(node) + " já foi declarada.");
+                 }
+                 else this.printError("declaracao", e.toString(), null, node); 
               }  
          //System.out.println();
         }   
-        else
-             System.out.println("\""+ tipo.toString().trim() + "\"" + " na linha "+ tm.getLine(node) +" não é um tipo existente.");
+        else this.printError("semTipo", tipo.toString(), null, node); 
     }  
     
     @Override
@@ -137,7 +169,8 @@ public class Semantico extends DepthFirstAdapter {
         
         if(node.getInicialize() != null && !tipoSplited[0].trim().equals(getType(node.getInicialize().toString()))){
              String inicialize = node.getInicialize().toString().trim();
-              
+              boolean printTypeError = false;
+                      
                boolean defIni = false; 
                int j = findScopeVar(inicialize.trim());
                
@@ -150,7 +183,7 @@ public class Semantico extends DepthFirstAdapter {
                String getCategInTable = null;
                
                if(j > -1){
-                   getIniInTable = this.BLOCOS.get(j).getSymbolTable().get(this.BLOCOS.get(j).hash(inicialize.trim())); //.get(4).toString().trim(); 
+                   getIniInTable = this.BLOCOS.get(j).findElement(inicialize.trim()); //.get(4).toString().trim(); 
                    valueInicialize = getIniInTable.get(1).toString() + " ";
                    getTypeInTable = getIniInTable.get(4) + " ";
                    getCategInTable =  getIniInTable.get(2) + " ";
@@ -171,10 +204,7 @@ public class Semantico extends DepthFirstAdapter {
                           this.BLOCOS.get(escopo).insert(id.trim(),value,getCategInTable, (this.escopo+1), getTypeInTable, false);
                          //System.out.println("-->Inserir ( "+ id +", " + value + ", " + getCategInTable+", " + (this.escopo+1) + ", " +  getTypeInTable +")"); 
                      }
-                     else{
-                          System.out.println("Erro: variável \"" + inicialize.trim() + "\" na linha " + tm.getLine(node) + " não pode ser atribuída a " + id);
-                          System.out.println("O tipo de " + id + " é diferente de " + inicialize.trim());
-                      }
+                     else this.printError("tipo", id, inicialize, node); 
               }
               else if(node.getInicialize() instanceof PValor){  
                   // System.out.println("Ações a serem tomadas na tabela de símbolos:");  
@@ -188,35 +218,28 @@ public class Semantico extends DepthFirstAdapter {
                              this.BLOCOS.get(escopo).insert(id,value , vet, (this.escopo+1),tipo.toString(), false);
                             // System.out.println("-->Inserir ( "+ var.trim() +", " + value + ", " + getVarCategInTable+", " + (this.escopo+1) + ", " + getVarInTable.toString().trim() +")");
                         }
-                        else{
-                            System.out.println("Erro: variável \"" + id + "\" na linha " + tm.getLine(node) + " não pode receber " + inicialize); 
-                            System.out.println("O tipo de " + id + " é diferente de " + inicialize.trim());
-                        }
+                         else this.printError("tipo", id, inicialize, node); 
                    }
                    else if(getType(inicialize).equals("symbol") && "symbol".equals(tipo.toString())){
                        
                         this.BLOCOS.get(escopo).insert(id,node.getInicialize(), vet, (this.escopo+1),tipo.toString(), false);
                    }
-                   else{
-                      System.out.println("Erro: variável \"" + id + "\" na linha " + tm.getLine(node) + " não pode receber " + inicialize); 
-                      System.out.println(": O tipo de " + id + " é diferente de " + inicialize.trim() +"."); 
-                   }
+                     else this.printError("tipo", id, inicialize, node); 
               }
-              else{
-                   System.out.print("Erro: variável \"" + id + "\" na linha " + tm.getLine(node) + " não pode receber " + inicialize); 
-                   System.out.println(": O tipo de " + id + " é diferente de " + inicialize.trim() +".");
-              }
+               else this.printError("tipo", id, inicialize, node); 
+               
         } 
         else if(this.BLOCOS.get(escopo).insert(id.trim(), val , vet.trim(), (this.escopo+1), tipo.toString().trim(), true)){
         //     System.out.println("-->Inserir ( "+ id +", " +  val + ", " +vet+", " + (this.escopo+1) + ", " + tipo.toString() +")"); 
         }
-        else 
-             System.out.println("\nErro: variável \"" + id.trim() + "\" na linha " +  tm.getLine(node) + " já foi declarada.");
-          
-        System.out.println();
+        else printError("declaracao",id,null,node); 
+        
+             System.out.println();
       }
-      else
-         System.out.println("\""+ tipo.toString().trim() + "\"" + " na linha "+ tm.getLine(node) +" não é um tipo existente.");
+     else this.printError("semTipo", tipo.toString(), null, node);
+     
+     
+     
    }
     
     @Override  
@@ -225,17 +248,18 @@ public class Semantico extends DepthFirstAdapter {
       String var = node.getVar().toString().trim(); 
       String exp = node.getExp().toString().trim();
       //System.out.println("Ações a serem tomadas na tabela de símbolos:");  
-      boolean defVar;  
+      boolean defVar; 
+      boolean printError = false;
       int i = findScopeVar(var);      
       defVar = i > -1;
      
       String[] categ = null;
-      if(defVar) categ = this.BLOCOS.get(i).getSymbolTable().get(this.BLOCOS.get(i).hash(var)).get(2).toString().split(" ");
+      if(defVar) categ = this.BLOCOS.get(i).findElement(var).get(2).toString().split(" ");
 
      if(!defVar) 
-         System.out.println("Erro: variável \"" + var.trim() + "\" na linha " + tm.getLine(node) + " não foi declarada.");
+         this.printError("semDeclaracao", var, null, node); 
      else if("unalt".equals(categ[0]))
-         System.out.println("Erro: variável \"" + var.trim() + "\" na linha " + tm.getLine(node) + " é unalterable."); 
+         this.printError("constante", var, null, node);  
      else{
          
                boolean defExp = false; 
@@ -252,18 +276,18 @@ public class Semantico extends DepthFirstAdapter {
                String getExpValueInTable = null;
                
                if(defVar){ 
-                   getVarInTable = this.BLOCOS.get(i).getSymbolTable().get(this.BLOCOS.get(i).hash(var));//.get(4).toString().trim();
+                   getVarInTable = this.BLOCOS.get(i).findElement(var);
                    getVarCategInTable = (getVarInTable.get(2) + " ").trim();
                    getVarTypeInTable = (getVarInTable.get(4) + " ").trim(); 
                }  
                if(defExp){
-                    getExpInTable = this.BLOCOS.get(j).getSymbolTable().get(this.BLOCOS.get(j).hash(exp)); //.get(4).toString().trim(); 
+                    getExpInTable = this.BLOCOS.get(j).findElement(exp);
                     getExpTypeInTable = (getExpInTable.get(4) + " ").trim();
                     getExpValueInTable = (getExpInTable.get(1) + " ").trim();
                } 
                
-              if(defExp){   
-                     if(getVarTypeInTable.equals(getExpTypeInTable)){ 
+              if(defExp){ 
+                     if(getExpTypeInTable.equals(getVarTypeInTable)){  
                          this.BLOCOS.get(escopo).insert(var.trim(), getExpValueInTable, getVarCategInTable, (this.escopo+1), getVarTypeInTable , false); 
                     //     System.out.println("-->Inserir ( "+ var.trim() +", " +  exp + ", " +getVarCategInTable+", " + (this.escopo+1) + ", " + getVarTypeInTable  +")"); 
                      }
@@ -276,31 +300,29 @@ public class Semantico extends DepthFirstAdapter {
                           this.BLOCOS.get(escopo).insert(var.trim(),value,getVarCategInTable, (this.escopo+1), getVarTypeInTable , false);
                          //System.out.println("-->Inserir ( "+ var.trim() +", " + value + ", " +"getVarCategInTable+", " + (this.escopo+1) + ", " +  getVarTypeInTable  +")"); 
                      }
-                     else{ 
-                          System.out.print("Erro: variável \"" + var.trim() + "\" na linha " + tm.getLine(node) + " não pode receber " + exp.trim()); 
-                          System.out.println(": O tipo de  \"" + var.trim() + "\" é diferente de \"" + exp.trim() +"\".");
-                      }
+                     else this.printError("tipo",var, exp, node);
               }
               else if(node.getExp() instanceof AValorExp){  
                   // System.out.println("Ações a serem tomadas na tabela de símbolos:"); 
-                    
-                    if(getType(exp).equals("integer") || getType(exp).equals("real")){
-                        if("integer".equals(getVarInTable)){ 
-                            this.BLOCOS.get(escopo).insert(var.trim(),exp.split(".[0-9]+")[0],getVarCategInTable, (this.escopo+1),getVarTypeInTable, false);
-                            //System.out.println("-->Inserir ( "+ var.trim() +", " +  exp.split(".[0-9]+")[0] + ", " +"var"+", " + (this.escopo+1) + ", " + getVarTypeInTable +")");
+                    if(getType(exp).equals(getVarTypeInTable)){
+                        this.BLOCOS.get(escopo).insert(var.trim(), exp.trim(), getVarCategInTable, escopo,getVarTypeInTable, false);
+                    }
+                    else if(getType(exp).equals("integer") || getType(exp).equals("real")){ 
+                        if("integer".equals(getVarTypeInTable)){  
+                            this.BLOCOS.get(escopo).insert(var.trim(),(exp.split(".[0-9]+")[0] + " ").trim(),getVarCategInTable, (this.escopo+1),getVarTypeInTable, false);
+                            //System.out.println("-->Inserir ( "+ var.trim() +", " +  (exp.split(".[0-9]+")[0] + " ").trim() + ", " +"var"+", " + (this.escopo+1) + ", " + getVarTypeInTable +")");
                         }
-                        else{ 
-                             String value = exp.contains(".") ? exp : exp + ".0"; 
-                             this.BLOCOS.get(escopo).insert(var.trim(),value , getVarCategInTable, (this.escopo+1),getVarTypeInTable, false);
+                        else if("real".equals(getVarTypeInTable)){ 
+                             String value = exp.contains(".") ? exp : (exp + ".0").trim(); 
+                             this.BLOCOS.get(escopo).insert(var.trim(), value , getVarCategInTable, (this.escopo+1),getVarTypeInTable, false);
                             // System.out.println("-->Inserir ( "+ var.trim() +", " + value + ", " + getVarCategInTable+", " + (this.escopo+1) + ", " + getVarTypeInTable +")");
                         }
-                   }
+                        else this.printError("tipo",var, exp, node);
+                   } 
+                    else this.printError("tipo",var, exp, node);
               } 
-              else{
-                   System.out.print("Erro: variável \"" + var.trim() + "\" na linha " + tm.getLine(node) + " não pode receber " + exp.trim()); 
-                   System.out.println(": O tipo de \"" + var.trim() + "\" é diferente de " + exp.trim() +".");
-              }
-           
+               //else this.printError("tipo",var, exp, node);
+               
      }  
      
   }    
@@ -316,15 +338,15 @@ public class Semantico extends DepthFirstAdapter {
         LinkedList<PVar> var = node.getMultiVar();
             for(PVar e : var){
                 if(findScopeVar(e.toString()) == -1)
-                    System.out.println("Erro: variável \"" + e.toString().trim() + "\" na linha " + tm.getLine(node) + " não foi declarada. "); 
+                    this.printError("declaracao", e.toString(), null, node);  
             } 
     }
         @Override
     public void outAShowCmd(AShowCmd node){ 
         for(PExp e : node.getMultiExp()){  
             int i = findScopeVar(e.toString()); 
-               if(i == -1) System.out.println("Erro: variável \"" + e.toString().trim() + "\" na linha " + tm.getLine(node) + " não foi declarada. "); 
-               else System.out.println(this.BLOCOS.get(i).getSymbolTable().get(this.BLOCOS.get(i).hash(e.toString().trim())).get(1));    
+               if(i == -1) this.printError("declaracao", e.toString(), null, node);   
+               else System.out.print(this.BLOCOS.get(i).findElement(e.toString().trim()).get(1));    
          }
          System.out.println();
     }
@@ -332,30 +354,71 @@ public class Semantico extends DepthFirstAdapter {
      @Override
     public void outAIfComando(AIfComando node){
         if(!(node.getExp() instanceof PExp)){ 
-             System.out.println("Erro: a expressão na linha " + tm.getLine(node) + " não é válida.");
+            this.printError("expressao", null, null, node);  
         } 
     }  
    
      @Override
     public void outAAsLongAsCmd(AAsLongAsCmd node){
         if(!(node.getExp() instanceof PExp)){
-            System.out.println("Erro: a expressão na linha " + tm.getLine(node) + " não é válida.");
+            this.printError("expressao", null, null, node);  
         }
     } 
     
      
     @Override
     public void outAConsideringCmd(AConsideringCmd node){
-        if(findScopeVar(node.getVar().toString()) == -1){
-           System.out.println("Erro: variável \"" + node.getVar().toString().trim() +"\" na linha " + tm.getLine(node) + " não foi declarada.");
+        if(findScopeVar(node.getVar().toString()) == -1){ 
+           this.printError("declaracao",node.getVar().toString(), null, node);
         }
-        else if(!(node.getExp1() instanceof PExp) || !(node.getExp2() instanceof PExp) || !(node.getExp3() instanceof PExp)){
-           System.out.println("Erro: a expressão na linha " + tm.getLine(node) + " não é válida.");
+        else if(!(node.getExp1() instanceof PExp) || !(node.getExp2() instanceof PExp) || !(node.getExp3() instanceof PExp)){ 
+           this.printError("expressao", null, null, node);
         }
     }
     
      @Override
     public void outANegativoExp(ANegativoExp node){
+         String tipo = null;
+         PExp exp = node.getRight();
+         
+        if(node.getRight() instanceof AVarExp){ 
+            int i = findScopeVar(exp.toString());
+            if (i != -1){ //Se estiver na tabela 
+                 List<Object> element = this.BLOCOS.get(i).findElement(node.toString());
+                 tipo = element.get(4).toString();
+                 if(element.get(1) == null || element.get(1).toString().equals("null")){
+                     System.out.print("Erro: não é possível negativar \"" + exp.toString().trim() + "\" na linha " + tm.getLine(node));
+                     System.out.println(": O valor de \"" + exp.toString().trim() + "\" é null");
+                 }
+                 else if(tipo.equals("integer")){ 
+                     int negElem = -Integer.parseInt(element.get(1).toString().trim()); 
+                     this.BLOCOS.get(i).insert(element.get(0).toString().trim(), negElem, element.get(2).toString(), escopo+1,element.get(4).toString(), false);
+                     System.out.println("-->Inserir ( "+ element.get(0).toString().trim() +", " + negElem + ", " + element.get(2).toString() +", " + (this.escopo+1) + ", " + element.get(4).toString() +")");
+                 }
+                 else if(tipo.equals("real")){
+                     float negElem = -Float.parseFloat(element.get(1).toString().trim()); 
+                     this.BLOCOS.get(i).insert(element.get(0).toString().trim(), negElem, element.get(2).toString(), escopo+1,element.get(4).toString(), false);   
+                     System.out.println("-->Inserir ( "+ element.get(0).toString().trim() +", " + negElem + ", " + element.get(2).toString() +", " + (this.escopo+1) + ", " + element.get(4).toString() +")");
+                 } 
+            } 
+            else this.printError("semDeclaracao", exp.toString(),null, node);
+        }
+        else if(node.getRight() instanceof AValorExp){
+                tipo = getType(exp.toString().trim());
+            if(tipo.equals("integer")){ 
+                     int negElem = -Integer.parseInt(exp.toString().trim()); 
+                     this.BLOCOS.get(escopo).insert(exp.toString().trim(), negElem, "val", escopo+1,tipo, true);
+                     System.out.println("-->Inserir ( "+ exp.toString().trim() +", " + negElem + ", " +  "val" +", " + (this.escopo+1) + ", " + tipo +")");
+                 }
+            else if(tipo.equals("real")){
+                float negElem = -Float.parseFloat(exp.toString().trim()); 
+                 this.BLOCOS.get(escopo).insert(exp.toString().trim(), negElem, "val", escopo+1,tipo, true); 
+                 System.out.println("-->Inserir ( "+ exp.toString().trim() +", " + negElem + ", " +  "val" +", " + (this.escopo+1) + ", " + tipo +")");
+            }
+            else{ 
+                System.out.println("Erro: não é possível negativar \"" + exp.toString().trim() + "\" na linha " + tm.getLine(node)); 
+            }
+        }
         
     }
     

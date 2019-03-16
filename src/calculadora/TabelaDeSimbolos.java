@@ -30,6 +30,9 @@ public class TabelaDeSimbolos {
     public boolean verify(String id){//verifica se um variável de mesmo nome já foi declarada no mesmo escopo  
         return this.symbolTable.containsKey(this.hash(id));
     }
+    public List<Object> findElement(String id){
+        return this.symbolTable.get(this.hash(id.trim()));
+    }
     //HashMap<[Variavel,categoria, definido, escopo], tipo>
     public boolean insert(String id,Object value,String categ,int scope, String type, boolean verify){
          

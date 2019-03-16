@@ -54,6 +54,10 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getBloco().apply(this);
         }
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
         outAProgramaPrograma(node);
     }
 

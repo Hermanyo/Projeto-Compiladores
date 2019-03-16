@@ -655,10 +655,12 @@ public class Parser
         PPrograma pprogramaNode1;
         {
             // Block
-        PBloco pblocoNode2;
-        pblocoNode2 = (PBloco)nodeArrayList3.get(0);
+        TId tidNode2;
+        PBloco pblocoNode3;
+        tidNode2 = (TId)nodeArrayList2.get(0);
+        pblocoNode3 = (PBloco)nodeArrayList3.get(0);
 
-        pprogramaNode1 = new AProgramaPrograma(pblocoNode2);
+        pprogramaNode1 = new AProgramaPrograma(tidNode2, pblocoNode3);
         }
 	nodeList.add(pprogramaNode1);
         return nodeList;

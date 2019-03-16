@@ -50,6 +50,10 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAProgramaPrograma(AProgramaPrograma node)
     {
         inAProgramaPrograma(node);
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
         if(node.getBloco() != null)
         {
             node.getBloco().apply(this);

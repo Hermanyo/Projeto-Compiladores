@@ -76,7 +76,7 @@ Ignored Tokens
 
 Productions
 
-programa {-> programa} = {programa} code id bloco {-> New programa.programa(bloco)};
+programa {-> programa} = {programa} code id bloco {-> New programa.programa(id,bloco)};
 
 bloco {-> bloco} =
     {bloco} start declaracao* comando* finish {-> New bloco.bloco([declaracao], [comando])};
@@ -163,7 +163,7 @@ termo {-> exp} =
 
 Abstract Syntax Tree
 
-programa = {programa} bloco;
+programa = {programa} [name]:id bloco;
 
 bloco = {bloco} declaracao* comando*;
  

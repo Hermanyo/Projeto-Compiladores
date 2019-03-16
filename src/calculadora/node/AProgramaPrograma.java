@@ -7,6 +7,7 @@ import calculadora.analysis.*;
 @SuppressWarnings("nls")
 public final class AProgramaPrograma extends PPrograma
 {
+    private TId _name_;
     private PBloco _bloco_;
 
     public AProgramaPrograma()
@@ -15,9 +16,12 @@ public final class AProgramaPrograma extends PPrograma
     }
 
     public AProgramaPrograma(
+        @SuppressWarnings("hiding") TId _name_,
         @SuppressWarnings("hiding") PBloco _bloco_)
     {
         // Constructor
+        setName(_name_);
+
         setBloco(_bloco_);
 
     }
@@ -26,6 +30,7 @@ public final class AProgramaPrograma extends PPrograma
     public Object clone()
     {
         return new AProgramaPrograma(
+            cloneNode(this._name_),
             cloneNode(this._bloco_));
     }
 
@@ -33,6 +38,31 @@ public final class AProgramaPrograma extends PPrograma
     public void apply(Switch sw)
     {
         ((Analysis) sw).caseAProgramaPrograma(this);
+    }
+
+    public TId getName()
+    {
+        return this._name_;
+    }
+
+    public void setName(TId node)
+    {
+        if(this._name_ != null)
+        {
+            this._name_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._name_ = node;
     }
 
     public PBloco getBloco()
@@ -64,6 +94,7 @@ public final class AProgramaPrograma extends PPrograma
     public String toString()
     {
         return ""
+            + toString(this._name_)
             + toString(this._bloco_);
     }
 
@@ -71,6 +102,12 @@ public final class AProgramaPrograma extends PPrograma
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
+        if(this._name_ == child)
+        {
+            this._name_ = null;
+            return;
+        }
+
         if(this._bloco_ == child)
         {
             this._bloco_ = null;
@@ -84,6 +121,12 @@ public final class AProgramaPrograma extends PPrograma
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
+        if(this._name_ == oldChild)
+        {
+            setName((TId) newChild);
+            return;
+        }
+
         if(this._bloco_ == oldChild)
         {
             setBloco((PBloco) newChild);
