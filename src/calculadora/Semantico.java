@@ -12,6 +12,7 @@ import calculadora.node.AIfComando;
 import calculadora.node.ANegativoExp;
 import calculadora.node.AProgramaPrograma;
 import calculadora.node.AShowCmd;
+import calculadora.node.ASomaExp;
 import calculadora.node.AUnaltDeclaracao;
 import calculadora.node.AValorExp;
 import calculadora.node.AVarExp;
@@ -64,7 +65,7 @@ public class Semantico extends DepthFirstAdapter {
                 System.err.println("Erro: variável \"" + id_ou_tipo.trim() + "\" na linha " +  tm.getLine(node) + " já foi declarada.");
             break;
             case "semDeclaracao":
-                 System.err.println("Erro: variável \"" + id_ou_tipo.trim() + "\" na linha " +  tm.getLine(node) + " não foi declarada.");
+                System.err.println("Erro: variável \"" + id_ou_tipo.trim() + "\" na linha " +  tm.getLine(node) + " não foi declarada.");
             break;
             case "tipo":
                 System.err.print("Erro: variável \"" + id_ou_tipo.trim() + "\" na linha " + tm.getLine(node) + " não pode receber \"" + exp.trim() + "\""); 
@@ -79,8 +80,11 @@ public class Semantico extends DepthFirstAdapter {
             case "expressao":
                 System.err.println("Erro: a expressão na linha " + tm.getLine(node) + " não é válida.");
             break;
+            case "soma":
+                System.err.println("Erro: não foi possível realiza a soma na linha " + tm.getLine(node));
+            break;
             default:
-              System.err.println("Erro: ");
+                System.err.println("Erro: ");
         }
     }
     @Override
@@ -133,8 +137,8 @@ public class Semantico extends DepthFirstAdapter {
                    vet = "vet";
                }  
               
-                 if(this.BLOCOS.get(escopo).insert(e.toString().trim(), null, vet, (this.escopo+1), tipo.toString().trim(), true)){
-          //        System.out.println("-->Inserir ( "+ e.toString() +", " + null + ", " +vet+", " + (this.escopo+1) + ", " + tipo.toString() +")"); 
+                 if(this.BLOCOS.get(escopo).insert(e.toString().trim(), "0", vet, (this.escopo+1), tipo.toString().trim(), true)){
+          //        System.out.println("-->Inserir ( "+ e.toString() +", " + "0" + ", " +vet+", " + (this.escopo+1) + ", " + tipo.toString() +")"); 
                  }
                  else this.printError("declaracao", e.toString(), null, node); 
               }  
@@ -160,7 +164,7 @@ public class Semantico extends DepthFirstAdapter {
       //  System.out.println("Ações a serem tomadas na tabela de símbolos:"); 
         
          
-        String val = (node.getInicialize() != null ? node.getInicialize().toString().trim() : null);
+        String val = (node.getInicialize() != null ? node.getInicialize().toString().trim() : "0");
          String vet = "unalt var";
                if(tipoSplited.length > 1){
                   // System.out.println(id.trim() + " é um vector do tipo " + tipoSplited[0].trim() + " de " + tipoSplited[1].trim() + " posições.");
@@ -176,8 +180,7 @@ public class Semantico extends DepthFirstAdapter {
                
                defIni = j > -1;
                
-               List<Object> getIniInTable = null;
-               String expValue = null;
+               List<Object> getIniInTable = null; 
                String valueInicialize = null;
                String getTypeInTable = null;
                String getCategInTable = null;
@@ -194,12 +197,12 @@ public class Semantico extends DepthFirstAdapter {
                          this.BLOCOS.get(escopo).insert(id, valueInicialize, node.getTipo().toString().trim(), (this.escopo+1),getTypeInTable, false); 
                     //     System.out.println("-->Inserir ( "+ id +", " +  exp + ", " +getCategInTable+", " + (this.escopo+1) + ", " + getTypeInTable +")"); 
                      }
-                     else if(getTypeInTable.equals("integer") && getTypeInTable.equals("real")){
+                     else if(getTypeInTable.equals("integer")){
                          
                          this.BLOCOS.get(escopo).insert(id, inicialize.split(".[0-9]+")[0], getCategInTable, (this.escopo+1), getTypeInTable, false);
                          // System.out.println("-->Inserir ( "+ id +", " +  inicialize.split(".[0-9]+")[0] + ", " +getCategInTable+", " + (this.escopo+1) + ", " + getTypeInTable +")"); 
                      }
-                     else if(getTypeInTable.equals("real") && getTypeInTable.equals("integer")){
+                     else if(getTypeInTable.equals("real")){
                             String value =  valueInicialize.contains(".") ? valueInicialize : valueInicialize + ".0"; 
                           this.BLOCOS.get(escopo).insert(id.trim(),value,getCategInTable, (this.escopo+1), getTypeInTable, false);
                          //System.out.println("-->Inserir ( "+ id +", " + value + ", " + getCategInTable+", " + (this.escopo+1) + ", " +  getTypeInTable +")"); 
@@ -208,21 +211,27 @@ public class Semantico extends DepthFirstAdapter {
               }
               else if(node.getInicialize() instanceof PValor){  
                   // System.out.println("Ações a serem tomadas na tabela de símbolos:");  
-                    if(getType(inicialize).equals("integer") || getType(inicialize).equals("real")){
-                        if("integer".equals(tipo.toString())){ 
-                            this.BLOCOS.get(escopo).insert(id,inicialize.split(".[0-9]+")[0],vet, (this.escopo+1),tipo.toString(), false);
-                            //System.out.println("-->Inserir ( "+ var.trim() +", " +  exp.split(".[0-9]+")[0] + ", " +"var"+", " + (this.escopo+1) + ", " + getVarInTable.toString().trim() +")");
+                    if(getType(inicialize).equals("integer") || getType(inicialize).equals("real")){ 
+                        if(null == tipo.toString().trim())this.printError("tipo", id, inicialize, node); 
+                        else switch (tipo.toString().trim()) {
+                            case "integer":
+                                this.BLOCOS.get(escopo).insert(id,inicialize.split(".[0-9]+")[0],vet, (this.escopo+1),tipo.toString(), false);
+                                //System.out.println("-->Inserir ( "+ var.trim() +", " +  exp.split(".[0-9]+")[0] + ", " +"var"+", " + (this.escopo+1) + ", " + getVarInTable.toString().trim() +")");
+                                break;
+                            case "real":
+                                String value = inicialize.contains(".") ? inicialize : inicialize + ".0";
+                                this.BLOCOS.get(escopo).insert(id,value , vet, (this.escopo+1),tipo.toString(), false);
+                                // System.out.println("-->Inserir ( "+ var.trim() +", " + value + ", " + getVarCategInTable+", " + (this.escopo+1) + ", " + getVarInTable.toString().trim() +")");
+                                break;
+                            default:
+                                this.printError("tipo", id, inicialize, node);
+                                break;
                         } 
-                        else if("real".equals(tipo.toString())){ 
-                             String value = inicialize.contains(".") ? inicialize : inicialize + ".0"; 
-                             this.BLOCOS.get(escopo).insert(id,value , vet, (this.escopo+1),tipo.toString(), false);
-                            // System.out.println("-->Inserir ( "+ var.trim() +", " + value + ", " + getVarCategInTable+", " + (this.escopo+1) + ", " + getVarInTable.toString().trim() +")");
-                        }
-                         else this.printError("tipo", id, inicialize, node); 
                    }
                    else if(getType(inicialize).equals("symbol") && "symbol".equals(tipo.toString())){
                        
-                        this.BLOCOS.get(escopo).insert(id,node.getInicialize(), vet, (this.escopo+1),tipo.toString(), false);
+                        this.BLOCOS.get(escopo).insert(id,node.getInicialize(), vet, (this.escopo+1),tipo.toString().trim(), false);
+                       // System.out.println("-->Inserir ( "+ id.trim() +", " + node.getInicialize() + ", " + vet +", " + (this.escopo+1) + ", " + tipo.toString().trim() +")");
                    }
                      else this.printError("tipo", id, inicialize, node); 
               }
@@ -237,9 +246,7 @@ public class Semantico extends DepthFirstAdapter {
              System.out.println();
       }
      else this.printError("semTipo", tipo.toString(), null, node);
-     
-     
-     
+       
    }
     
     @Override  
@@ -268,12 +275,11 @@ public class Semantico extends DepthFirstAdapter {
                defExp = j > -1;
                
                List<Object> getVarInTable = null;
-               List<Object> getExpInTable = null;
-               String expValue = null;
+               List<Object> getExpInTable = null; 
                String getVarCategInTable = null;
                String getVarTypeInTable = null;
                String getExpTypeInTable = null;
-               String getExpValueInTable = null;
+               String getExpValueInTable = "0";
                
                if(defVar){ 
                    getVarInTable = this.BLOCOS.get(i).findElement(var);
@@ -286,42 +292,60 @@ public class Semantico extends DepthFirstAdapter {
                     getExpValueInTable = (getExpInTable.get(1) + " ").trim();
                } 
                
-              if(defExp){ 
-                     if(getExpTypeInTable.equals(getVarTypeInTable)){  
+              if(defExp){    
+                     if(getExpTypeInTable.equals(getVarTypeInTable)){   
                          this.BLOCOS.get(escopo).insert(var.trim(), getExpValueInTable, getVarCategInTable, (this.escopo+1), getVarTypeInTable , false); 
                     //     System.out.println("-->Inserir ( "+ var.trim() +", " +  exp + ", " +getVarCategInTable+", " + (this.escopo+1) + ", " + getVarTypeInTable  +")"); 
                      }
-                     else if(getVarTypeInTable.equals("integer") && getExpTypeInTable.equals("real")){ 
-                         this.BLOCOS.get(escopo).insert(var.trim(), getExpValueInTable.split(".[0-9]+")[0].trim(), getVarCategInTable, (this.escopo+1), getVarTypeInTable , false);
-                         // System.out.println("-->Inserir ( "+ var.trim() +", " +  getExpValueInTable.split(".[0-9]+")[0].trim() + ", " +getVarCategInTable+", " + (this.escopo+1) + ", " + getVarTypeInTable  +")"); 
+                     else if(getVarTypeInTable.equals("integer") && getExpTypeInTable.equals("real")){  
+                             String value = " "; 
+                            for(int pos=0;pos<getExpValueInTable.length();pos++){
+                                 if(getExpValueInTable.charAt(pos) == '.') break;
+                                 value += getExpValueInTable.charAt(pos);
+                             }
+                         this.BLOCOS.get(escopo).insert(var.trim(), value.trim(), getVarCategInTable, (this.escopo+1), getVarTypeInTable , false);
+                         // System.out.println("-->Inserir ( "+ var.trim() +", " +  value.trim() + ", " +getVarCategInTable+", " + (this.escopo+1) + ", " + getVarTypeInTable  +")"); 
                      }
-                     else if(getVarTypeInTable.equals("real") && getExpTypeInTable.equals("integer")){
+                     else if(getVarTypeInTable.equals("real") && getExpTypeInTable.equals("integer")){ 
                             String value = getExpValueInTable.contains(".") ? getExpValueInTable : (getExpValueInTable + ".0").trim(); 
                           this.BLOCOS.get(escopo).insert(var.trim(),value,getVarCategInTable, (this.escopo+1), getVarTypeInTable , false);
                          //System.out.println("-->Inserir ( "+ var.trim() +", " + value + ", " +"getVarCategInTable+", " + (this.escopo+1) + ", " +  getVarTypeInTable  +")"); 
                      }
                      else this.printError("tipo",var, exp, node);
               }
-              else if(node.getExp() instanceof AValorExp){  
+              else if(node.getExp() instanceof AValorExp){   
                   // System.out.println("Ações a serem tomadas na tabela de símbolos:"); 
                     if(getType(exp).equals(getVarTypeInTable)){
                         this.BLOCOS.get(escopo).insert(var.trim(), exp.trim(), getVarCategInTable, escopo,getVarTypeInTable, false);
                     }
                     else if(getType(exp).equals("integer") || getType(exp).equals("real")){ 
-                        if("integer".equals(getVarTypeInTable)){  
-                            this.BLOCOS.get(escopo).insert(var.trim(),(exp.split(".[0-9]+")[0] + " ").trim(),getVarCategInTable, (this.escopo+1),getVarTypeInTable, false);
-                            //System.out.println("-->Inserir ( "+ var.trim() +", " +  (exp.split(".[0-9]+")[0] + " ").trim() + ", " +"var"+", " + (this.escopo+1) + ", " + getVarTypeInTable +")");
+                        if(null == getVarTypeInTable)this.printError("tipo",var, exp, node);
+                        else switch (getVarTypeInTable) {
+                            case "integer":
+                                {
+                                    String value = " ";
+                                    for(int pos=0;pos<exp.length();pos++){
+                                        if(exp.charAt(pos) == '.') break;
+                                        value += exp.charAt(pos);
+                                    }      this.BLOCOS.get(escopo).insert(var.trim(),value.trim(),getVarCategInTable, (this.escopo+1),getVarTypeInTable, false);
+                                    //System.out.println("-->Inserir ( "+ var.trim() +", " +  value.trim() + ", " +"var"+", " + (this.escopo+1) + ", " + getVarTypeInTable +")");
+                                    break;
+                                }
+                            case "real":
+                                {
+                                    String value = exp.contains(".") ? exp : (exp + ".0").trim();
+                                    this.BLOCOS.get(escopo).insert(var.trim(), value , getVarCategInTable, (this.escopo+1),getVarTypeInTable, false);
+                                    // System.out.println("-->Inserir ( "+ var.trim() +", " + value + ", " + getVarCategInTable+", " + (this.escopo+1) + ", " + getVarTypeInTable +")");
+                                    break;
+                                }
+                            default:
+                                this.printError("tipo",var, exp, node);
+                                break;
                         }
-                        else if("real".equals(getVarTypeInTable)){ 
-                             String value = exp.contains(".") ? exp : (exp + ".0").trim(); 
-                             this.BLOCOS.get(escopo).insert(var.trim(), value , getVarCategInTable, (this.escopo+1),getVarTypeInTable, false);
-                            // System.out.println("-->Inserir ( "+ var.trim() +", " + value + ", " + getVarCategInTable+", " + (this.escopo+1) + ", " + getVarTypeInTable +")");
-                        }
-                        else this.printError("tipo",var, exp, node);
                    } 
                     else this.printError("tipo",var, exp, node);
               } 
-               //else this.printError("tipo",var, exp, node);
+                
                
      }  
      
@@ -375,7 +399,14 @@ public class Semantico extends DepthFirstAdapter {
            this.printError("expressao", null, null, node);
         }
     }
-    
+//        @Override
+//    public void outAValorExp(AValorExp node){
+//        
+//    }
+//     @Override
+//    public void outAVarExp(AVarExp node){
+//         
+//    }
      @Override
     public void outANegativoExp(ANegativoExp node){
          String tipo = null;
@@ -391,37 +422,240 @@ public class Semantico extends DepthFirstAdapter {
                      System.out.println(": O valor de \"" + exp.toString().trim() + "\" é null");
                  }
                  else if(tipo.equals("integer")){ 
-                     int negElem = -Integer.parseInt(element.get(1).toString().trim()); 
-                     this.BLOCOS.get(i).insert(element.get(0).toString().trim(), negElem, element.get(2).toString(), escopo+1,element.get(4).toString(), false);
-                     System.out.println("-->Inserir ( "+ element.get(0).toString().trim() +", " + negElem + ", " + element.get(2).toString() +", " + (this.escopo+1) + ", " + element.get(4).toString() +")");
+                     Integer negElem = -Integer.parseInt(element.get(1).toString().trim()); 
+                     this.BLOCOS.get(i).insert(node.toString().trim(), negElem, element.get(2).toString(), escopo+1,element.get(4).toString(), false);
+                     System.out.println("-->Inserir ( "+ element.get(0).toString().trim() +", " + negElem + ", " + element.get(2).toString() +", " + (this.escopo+1) + ", " + element.get(4).toString().trim() +")");
                  }
                  else if(tipo.equals("real")){
-                     float negElem = -Float.parseFloat(element.get(1).toString().trim()); 
-                     this.BLOCOS.get(i).insert(element.get(0).toString().trim(), negElem, element.get(2).toString(), escopo+1,element.get(4).toString(), false);   
-                     System.out.println("-->Inserir ( "+ element.get(0).toString().trim() +", " + negElem + ", " + element.get(2).toString() +", " + (this.escopo+1) + ", " + element.get(4).toString() +")");
+                     Double negElem = -Double.parseDouble(element.get(1).toString().trim()); 
+                     this.BLOCOS.get(i).insert(node.toString().trim(), negElem, element.get(2).toString(), escopo+1,element.get(4).toString(), false);   
+                     System.out.println("-->Inserir ( "+ element.get(0).toString().trim() +", " + negElem + ", " + element.get(2).toString() +", " + (this.escopo+1) + ", " + element.get(4).toString().trim() +")");
                  } 
             } 
             else this.printError("semDeclaracao", exp.toString(),null, node);
         }
         else if(node.getRight() instanceof AValorExp){
                 tipo = getType(exp.toString().trim());
-            if(tipo.equals("integer")){ 
-                     int negElem = -Integer.parseInt(exp.toString().trim()); 
-                     this.BLOCOS.get(escopo).insert(exp.toString().trim(), negElem, "val", escopo+1,tipo, true);
-                     System.out.println("-->Inserir ( "+ exp.toString().trim() +", " + negElem + ", " +  "val" +", " + (this.escopo+1) + ", " + tipo +")");
-                 }
-            else if(tipo.equals("real")){
-                float negElem = -Float.parseFloat(exp.toString().trim()); 
-                 this.BLOCOS.get(escopo).insert(exp.toString().trim(), negElem, "val", escopo+1,tipo, true); 
-                 System.out.println("-->Inserir ( "+ exp.toString().trim() +", " + negElem + ", " +  "val" +", " + (this.escopo+1) + ", " + tipo +")");
-            }
-            else{ 
-                System.out.println("Erro: não é possível negativar \"" + exp.toString().trim() + "\" na linha " + tm.getLine(node)); 
-            }
+             switch (tipo) {
+                 case "integer":
+                     {
+                         Integer negElem = -Integer.parseInt(exp.toString().trim());
+                         this.BLOCOS.get(escopo).insert(node.toString().trim(), negElem, "val", escopo+1,tipo, true);
+                         //System.out.println("-->Inserir ( "+ exp.toString().trim() +", " + negElem + ", " +  "val" +", " + (this.escopo+1) + ", " + tipo +")");
+                         break;
+                     }
+                 case "real":
+                     {
+                         Double negElem = -Double.parseDouble(exp.toString().trim());
+                         this.BLOCOS.get(escopo).insert(node.toString().trim(), negElem, "val", escopo+1,tipo, true);
+                         // System.out.println("-->Inserir ( "+ exp.toString().trim() +", " + negElem + ", " +  "val" +", " + (this.escopo+1) + ", " + tipo +")");
+                         break;
+                     }
+                 default:
+                     System.out.println("Erro: não é possível negativar \"" + exp.toString().trim() + "\" na linha " + tm.getLine(node));
+                     break;
+             }
         }
         
     }
-    
+        @Override
+    public void outASomaExp(ASomaExp node){
+        String left = node.getLeft().toString().trim();
+        String right = node.getRight().toString().trim();
+        
+        if(node.getLeft() instanceof AValorExp && node.getRight() instanceof AValorExp){
+            String tipoLeft = getType(node.getLeft().toString().trim());
+            String tipoRight = getType(node.getRight().toString().trim());
+             
+            if(tipoLeft.equals(tipoRight)){
+                switch (tipoLeft) {
+                    case "integer":
+                        {
+                            Integer result = Integer.parseInt(left) + Integer.parseInt(right);
+                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
+                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "integer" +")");
+                            break;
+                        }
+                    case "real":
+                        {
+                            Double result = Double.parseDouble(left) + Double.parseDouble(right);
+                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
+                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "integer" +")");
+                            break;
+                        }
+                    default:
+                        this.printError("soma",null,null, node);
+                        break;
+                }
+            }
+            else if(tipoLeft.equals("integer") && tipoRight.equals("real")){
+                Double result = Integer.parseInt(left) + Double.parseDouble(right);
+                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
+                //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "real" +", " + (this.escopo+1) + ", " + "integer" +")");
+            }
+            else if(tipoLeft.equals("real") && tipoRight.equals("integer")){
+                 Double result = Double.parseDouble(left) + Integer.parseInt(right);
+                 this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
+                //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "real" +", " + (this.escopo+1) + ", " + "integer" +")");
+            }
+            else this.printError("soma",null,null, node);
+        }
+        else if(node.getLeft() instanceof AVarExp && node.getRight() instanceof AValorExp){ 
+            int k = findScopeVar(left);
+            if(k != -1){
+                List<Object> getVarInTable = this.BLOCOS.get(k).findElement(left);
+                if(getVarInTable.get(4).equals("integer")){
+                    switch (getType(right)) {
+                        case "integer":
+                            {
+                                Integer result = Integer.parseInt(getVarInTable.get(1).toString().trim()) + Integer.parseInt(right);
+                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
+                               // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "integer" +")");
+                                break;
+                            }
+                        case "real":
+                            {
+                                Double result = Integer.parseInt(getVarInTable.get(1).toString().trim()) + Double.parseDouble(right);
+                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
+                                //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
+                                break;
+                            }
+                        default:
+                            this.printError("soma",null,null, node);
+                            break;
+                    }
+                }
+                else if(getVarInTable.get(4).equals("real")){
+                    switch (getType(right)) {
+                        case "integer":
+                            {
+                                Double result =Double.parseDouble(getVarInTable.get(1).toString().trim()) + Integer.parseInt(right);
+                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
+                               // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
+                                break;
+                            }
+                        case "real":
+                            {
+                                Double result = Double.parseDouble(getVarInTable.get(1).toString().trim()) + Double.parseDouble(right);
+                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
+                               // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
+                                break;
+                            }
+                        default:
+                            this.printError("soma",null,null, node);
+                            break;
+                    }
+                } else this.printError("soma",null,null, node);
+            }
+            else this.printError("semDeclaracao", left, null, node);
+            
+        }
+        else if(node.getLeft() instanceof AValorExp && node.getRight() instanceof AVarExp){
+             int k = findScopeVar(right); 
+            if(k != -1){
+                 List<Object> getVarInTable = this.BLOCOS.get(k).findElement(right);
+                 if(getVarInTable.get(4).equals("integer")){
+                     switch (getType(left)) {
+                         case "integer":
+                             {    
+                                 Integer result =  Integer.parseInt(left) + Integer.parseInt(getVarInTable.get(1).toString().trim());
+                                 this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
+                                // System.out.println("-->Inserir ("+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "integer" +")");
+                                 break;
+                             }
+                         case "real": 
+                             {
+                                 Double result = Double.parseDouble(left) + Integer.parseInt(getVarInTable.get(1).toString().trim());
+                                 this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
+                               //  System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
+                                 break;
+                             }
+                         default: 
+                             this.printError("soma", null, null, node);
+                             break;
+                     }
+                 }
+                 else if(getVarInTable.get(4).equals("real")){
+                     switch (getType(left)) {
+                         case "integer":
+                             {
+                                 Double result =  Integer.parseInt(left) + Double.parseDouble(getVarInTable.get(1).toString());
+                                 this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
+                                // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
+                                 break;
+                             }
+                         case "real":
+                             {
+                                 Double result =  Double.parseDouble(left) + Double.parseDouble(getVarInTable.get(1).toString().trim());
+                                 this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
+                                // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
+                                 break;
+                             }
+                         default:
+                             this.printError("soma", null, null, node);
+                             break;
+                     }
+                 }
+            }
+            else this.printError("semDeclaracao", right, null, node); 
+        }
+        else if(node.getLeft() instanceof AVarExp && node.getRight() instanceof AVarExp){
+            int i = findScopeVar(left);
+            int j = findScopeVar(right);
+            
+            if(i != -1 && j !=-1){
+                List<Object> getLeftInTable = this.BLOCOS.get(i).findElement(left);
+                List<Object> getRightInTable = this.BLOCOS.get(j).findElement(right);
+                
+               if(getLeftInTable.get(4).equals("integer")){
+                    switch (getRightInTable.get(4).toString().trim()) {
+                        case "integer":
+                            {
+                                Integer result = Integer.parseInt(getLeftInTable.get(1).toString().trim()) + Integer.parseInt(getRightInTable.get(1).toString().trim());
+                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
+                                //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "integer" +")");
+                                break;
+                            }
+                        case "real":
+                            {
+                                Double result = Integer.parseInt(getLeftInTable.get(1).toString().trim()) + Double.parseDouble(getRightInTable.get(1).toString().trim());
+                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
+                               // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
+                                break;
+                            }
+                        default:
+                            this.printError("soma", null, null, node);
+                            break;
+                    }
+               }
+               else if(getLeftInTable.get(4).equals("real")){
+                    switch (getRightInTable.get(4).toString().trim()) {
+                        case "integer":
+                            {
+                                Double result = Double.parseDouble(getLeftInTable.get(1).toString().trim()) + Integer.parseInt(getRightInTable.get(1).toString().trim());
+                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
+                                //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "integer" +")");
+                                break;
+                            }
+                        case "real":
+                            {
+                                Double result = Double.parseDouble(getLeftInTable.get(1).toString().trim()) + Double.parseDouble(getRightInTable.get(1).toString().trim()); 
+                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
+                                //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
+                                break;
+                            }
+                        default:
+                            this.printError("soma", null, null, node);
+                            break;
+                    }
+               }
+            }
+            else if(i == -1) this.printError("semDeclaracao", left, null, node); 
+            else this.printError("semDeclaracao", right, null, node); 
+        }
+        else this.printError("soma",null,null, node);
+         
+    }
 
     
 }

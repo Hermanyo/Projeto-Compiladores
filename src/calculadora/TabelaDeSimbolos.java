@@ -9,7 +9,7 @@ import java.util.List;
  * @author hermanyo
  */
 public class TabelaDeSimbolos {
-    private final int SIZE = 1023;
+    private final int SIZE = 34213;
     private final int SHIFT = 4;  
     private final HashMap<Integer,List<Object>> symbolTable = new HashMap<>(); 
      
@@ -38,11 +38,11 @@ public class TabelaDeSimbolos {
          
          List<Object> columns = new ArrayList<>();
          int checksum = this.hash(id);
-         columns.add(id); 
+         columns.add(id.trim()); 
          columns.add(value); 
-         columns.add(categ);
+         columns.add(categ.trim());
          columns.add(scope);
-         columns.add(type);  
+         columns.add(type.trim());  
          if(!verify){
             this.symbolTable.put(checksum,columns); 
             return true;
