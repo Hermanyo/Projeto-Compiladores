@@ -519,7 +519,7 @@ public class Parser
                 push(goTo(18), list);
             }
             break;
-            case 55: /* reduce ADivisaoFator */
+            case 55: /* reduce ADivFator */
             {
                 ArrayList<Object> list = new55();
                 push(goTo(18), list);
@@ -2009,7 +2009,7 @@ public class Parser
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new55() /* reduce ADivisaoFator */
+    ArrayList<Object> new55() /* reduce ADivFator */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
@@ -2024,7 +2024,7 @@ public class Parser
         pexpNode2 = (PExp)nodeArrayList1.get(0);
         pexpNode3 = (PExp)nodeArrayList3.get(0);
 
-        pexpNode1 = new ADivisaoExp(pexpNode2, pexpNode3);
+        pexpNode1 = new ADivExp(pexpNode2, pexpNode3);
         }
 	nodeList.add(pexpNode1);
         return nodeList;

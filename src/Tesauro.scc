@@ -137,7 +137,7 @@ comando {-> comando} =
 exp {-> exp} =
      {fator} fator {-> fator.exp}
     |{soma} [left]:exp plus [right]:fator              {-> New exp.soma(left.exp,right.exp)}
-    |{subtracao} [l]:exp minus [r]:fator               {-> New exp.subtr(l.exp,r.exp)} 
+    |{subtracao} [left]:exp minus [right]:fator               {-> New exp.subtr(left.exp,right.exp)} 
     |{negacao} [left]:exp not [right]:fator            {-> New exp.negacao(left.exp,right.exp)} 
     |{ou} [left]:exp or [right]:fator                  {-> New exp.ou(left.exp,right.exp)}
     |{xou} [left]:exp xor [right]:fator                {-> New exp.xou(left.exp,right.exp)}
@@ -151,7 +151,7 @@ exp {-> exp} =
 fator {-> exp} =
      {termo} termo {-> termo.exp}
     |{multi} [left]:fator mult [right]:termo  {-> New exp.multi(left.exp, right.exp)}
-    |{divisao} [left]:fator div [right]:termo {-> New exp.divisao(left.exp, right.exp)}
+    |{div} [left]:fator div [right]:termo {-> New exp.div(left.exp, right.exp)}
     |{modulo} [left]:fator mod [right]:termo  {-> New exp.modulo(left.exp, right.exp)};
     
 termo {-> exp} =
@@ -215,10 +215,10 @@ exp =
     |{negativo} [right]:exp
     |{par} exp
     |{multi} [left]:exp [right]:exp 
-    |{divisao} [left]:exp [right]:exp 
+    |{div} [left]:exp [right]:exp 
     |{modulo} [left]:exp [right]:exp
     |{soma} [left]:exp [right]:exp
-    |{subtr} [l]:exp [r]:exp
+    |{subtr} [left]:exp [right]:exp
     |{negacao} [left]:exp [right]:exp
     |{ou} [left]:exp [right]:exp
     |{xou} [left]:exp [right]:exp

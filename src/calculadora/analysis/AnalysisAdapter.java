@@ -267,7 +267,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseADivisaoExp(ADivisaoExp node)
+    public void caseADivExp(ADivExp node)
     {
         defaultCase(node);
     }

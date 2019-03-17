@@ -7,12 +7,12 @@ start
  symbol t; 
  
  unalterable integer g=5;
- unalterable symbol y = "aaaaaa";
+ {unalterable symbol y = "aaaaaa";}
  unalterable integer vector[2] v;  
   
-    show(a);
-    a := -g;
-    a := a + 5;
+    a := g;
+    a := g - a;
+
    show(a);
 
 finish 

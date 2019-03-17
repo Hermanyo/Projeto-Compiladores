@@ -796,20 +796,20 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outAMultiExp(node);
     }
 
-    public void inADivisaoExp(ADivisaoExp node)
+    public void inADivExp(ADivExp node)
     {
         defaultIn(node);
     }
 
-    public void outADivisaoExp(ADivisaoExp node)
+    public void outADivExp(ADivExp node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseADivisaoExp(ADivisaoExp node)
+    public void caseADivExp(ADivExp node)
     {
-        inADivisaoExp(node);
+        inADivExp(node);
         if(node.getLeft() != null)
         {
             node.getLeft().apply(this);
@@ -818,7 +818,7 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getRight().apply(this);
         }
-        outADivisaoExp(node);
+        outADivExp(node);
     }
 
     public void inAModuloExp(AModuloExp node)
@@ -885,13 +885,13 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseASubtrExp(ASubtrExp node)
     {
         inASubtrExp(node);
-        if(node.getL() != null)
+        if(node.getLeft() != null)
         {
-            node.getL().apply(this);
+            node.getLeft().apply(this);
         }
-        if(node.getR() != null)
+        if(node.getRight() != null)
         {
-            node.getR().apply(this);
+            node.getRight().apply(this);
         }
         outASubtrExp(node);
     }

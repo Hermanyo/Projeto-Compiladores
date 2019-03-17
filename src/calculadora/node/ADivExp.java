@@ -5,17 +5,17 @@ package calculadora.node;
 import calculadora.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ASubtrExp extends PExp
+public final class ADivExp extends PExp
 {
     private PExp _left_;
     private PExp _right_;
 
-    public ASubtrExp()
+    public ADivExp()
     {
         // Constructor
     }
 
-    public ASubtrExp(
+    public ADivExp(
         @SuppressWarnings("hiding") PExp _left_,
         @SuppressWarnings("hiding") PExp _right_)
     {
@@ -29,7 +29,7 @@ public final class ASubtrExp extends PExp
     @Override
     public Object clone()
     {
-        return new ASubtrExp(
+        return new ADivExp(
             cloneNode(this._left_),
             cloneNode(this._right_));
     }
@@ -37,7 +37,7 @@ public final class ASubtrExp extends PExp
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseASubtrExp(this);
+        ((Analysis) sw).caseADivExp(this);
     }
 
     public PExp getLeft()

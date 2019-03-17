@@ -8,11 +8,14 @@ import calculadora.node.AConsideringCmd;
 import calculadora.node.AConstCmd;
 import calculadora.node.ACpyCmd;
 import calculadora.node.ADeclaracaoDeclaracao; 
+import calculadora.node.ADivExp;
 import calculadora.node.AIfComando;
+import calculadora.node.AMultiExp;
 import calculadora.node.ANegativoExp;
 import calculadora.node.AProgramaPrograma;
 import calculadora.node.AShowCmd;
 import calculadora.node.ASomaExp;
+import calculadora.node.ASubtrExp;
 import calculadora.node.AUnaltDeclaracao;
 import calculadora.node.AValorExp;
 import calculadora.node.AVarExp;
@@ -82,6 +85,18 @@ public class Semantico extends DepthFirstAdapter {
             break;
             case "soma":
                 System.err.println("Erro: não foi possível realiza a soma na linha " + tm.getLine(node));
+            break;
+            case "subtr":
+                System.err.println("Erro: não foi possível realiza a subtração na linha " + tm.getLine(node));
+            break;
+            case "div":
+                System.err.println("Erro: não foi possível realiza a divisão na linha " + tm.getLine(node));
+            break;
+            case "byZero":
+                System.err.println("Erro: não foi possível realiza a divisão na linha " + tm.getLine(node) + " (Divisão por zero)");
+            break;
+            case "multi":
+                System.err.println("Erro: não foi possível realiza a multiplicação na linha " + tm.getLine(node));
             break;
             default:
                 System.err.println("Erro: ");
@@ -309,7 +324,7 @@ public class Semantico extends DepthFirstAdapter {
                      else if(getVarTypeInTable.equals("real") && getExpTypeInTable.equals("integer")){ 
                             String value = getExpValueInTable.contains(".") ? getExpValueInTable : (getExpValueInTable + ".0").trim(); 
                           this.BLOCOS.get(escopo).insert(var.trim(),value,getVarCategInTable, (this.escopo+1), getVarTypeInTable , false);
-                         //System.out.println("-->Inserir ( "+ var.trim() +", " + value + ", " +"getVarCategInTable+", " + (this.escopo+1) + ", " +  getVarTypeInTable  +")"); 
+                          //System.out.println("-->Inserir ( "+ var.trim() +", " + value + ", " +getVarCategInTable+", " + (this.escopo+1) + ", " +  getVarTypeInTable  +")"); 
                      }
                      else this.printError("tipo",var, exp, node);
               }
@@ -388,7 +403,6 @@ public class Semantico extends DepthFirstAdapter {
             this.printError("expressao", null, null, node);  
         }
     } 
-    
      
     @Override
     public void outAConsideringCmd(AConsideringCmd node){
@@ -399,7 +413,7 @@ public class Semantico extends DepthFirstAdapter {
            this.printError("expressao", null, null, node);
         }
     }
-//        @Override
+//    @Override
 //    public void outAValorExp(AValorExp node){
 //        
 //    }
@@ -459,48 +473,204 @@ public class Semantico extends DepthFirstAdapter {
         
     }
         @Override
-    public void outASomaExp(ASomaExp node){
-        String left = node.getLeft().toString().trim();
-        String right = node.getRight().toString().trim();
+    public void outASomaExp(ASomaExp node){ 
+        this.GenericOperations("soma",node,node.getLeft(), node.getRight());
+    }
+        @Override
+    public void outASubtrExp(ASubtrExp node){
+        this.GenericOperations("subtr",node,node.getLeft(), node.getRight());
+    }
+        @Override
+    public void outAMultiExp(AMultiExp node){
+        this.GenericOperations("multi",node,node.getLeft(), node.getRight());
+    }
+        @Override
+    public void outADivExp(ADivExp node){
+        this.GenericOperations("div",node,node.getLeft(), node.getRight());
+    }
+    
+    public void GenericOperations(String op, Node node, PExp getLeft, PExp getRight){ 
+        String left = getLeft.toString().trim();
+        String right = getRight.toString().trim(); 
         
-        if(node.getLeft() instanceof AValorExp && node.getRight() instanceof AValorExp){
-            String tipoLeft = getType(node.getLeft().toString().trim());
-            String tipoRight = getType(node.getRight().toString().trim());
+        if(getLeft instanceof AValorExp && getRight instanceof AValorExp){
+            String tipoLeft = getType(getLeft.toString().trim());
+            String tipoRight = getType(getRight.toString().trim());
              
             if(tipoLeft.equals(tipoRight)){
                 switch (tipoLeft) {
                     case "integer":
                         {
-                            Integer result = Integer.parseInt(left) + Integer.parseInt(right);
-                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
-                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "integer" +")");
-                            break;
+                           switch(op){
+                               case "multi":
+                                   {
+                                        Integer result = Integer.parseInt(left) * Integer.parseInt(right);
+                                        this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                        //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                        break;
+                                   }
+                               case "div":
+                                   {
+                                        Double dividendo = Double.parseDouble(right);
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            }
+                                        Double result = Double.parseDouble(left) / dividendo;
+                                        this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                         //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                        break;
+                                   }
+                               case "soma":
+                                   {   
+                                        Integer result = Integer.parseInt(left) + Integer.parseInt(right);
+                                        this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                        //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                        break;
+                                   }
+                               case "subtr":
+                                   {
+                                        Integer result = Integer.parseInt(left) - Integer.parseInt(right);
+                                        this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                        //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                        break;  
+                                   }
+                           }
+                           break;
                         }
                     case "real":
                         {
-                            Double result = Double.parseDouble(left) + Double.parseDouble(right);
-                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
-                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "integer" +")");
+                            switch(op){
+                                case "multi":
+                                    {
+                                       Double result = Double.parseDouble(left) * Double.parseDouble(right);
+                                       this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                       //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");  
+                                       break;
+                                    }
+                                case "div":
+                                    {
+                                        Double dividendo = Double.parseDouble(right);
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            } 
+                                        
+                                       Double result = Double.parseDouble(left) / dividendo;
+                                       this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                       //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");  
+                                       break;
+                                    }
+                                case "soma":
+                                    {
+                                       Double result = Double.parseDouble(left) + Double.parseDouble(right);
+                                       this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                       //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");  
+                                       break;
+                                    }
+                                case "subtr":
+                                    {
+                                       Double result = Double.parseDouble(left) - Double.parseDouble(right);
+                                       this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                       //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");  
+                                       break;
+                                    }
+                            }
                             break;
                         }
                     default:
-                        this.printError("soma",null,null, node);
+                        this.printError(op,null,null, node);
                         break;
                 }
             }
             else if(tipoLeft.equals("integer") && tipoRight.equals("real")){
-                Double result = Integer.parseInt(left) + Double.parseDouble(right);
-                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
-                //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "real" +", " + (this.escopo+1) + ", " + "integer" +")");
+                switch(op){
+                    case "multi":
+                        {
+                            Double result = Integer.parseInt(left) * Double.parseDouble(right);
+                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                            break; 
+                        }
+                    case "div":
+                        {
+                            Double dividendo = Double.parseDouble(right);
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            } 
+                            Double result = Integer.parseInt(left) / dividendo;
+                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                            break;  
+                        }
+                    case "soma":
+                        {
+                            Double result = Integer.parseInt(left) + Double.parseDouble(right);
+                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                            break;  
+                        }
+                    case "subtr":
+                        {
+                            Double result = Integer.parseInt(left) - Double.parseDouble(right);
+                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                            break;  
+                        }
+                    default:
+                        this.printError(op,null,null, node);
+                        break;
+                } 
             }
             else if(tipoLeft.equals("real") && tipoRight.equals("integer")){
-                 Double result = Double.parseDouble(left) + Integer.parseInt(right);
-                 this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
-                //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "real" +", " + (this.escopo+1) + ", " + "integer" +")");
+                switch(op){
+                    case "multi":
+                        {
+                            Double result = Double.parseDouble(left) * Integer.parseInt(right);
+                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                            break; 
+                        }
+                    case "div":
+                        {
+                            Integer dividendo = Integer.parseInt(right);
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            } 
+                            Double result = Double.parseDouble(left) / dividendo;
+                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " + op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                            break;  
+                        }
+                    case "soma":
+                        {
+                            Double result = Double.parseDouble(left) + Integer.parseInt(right);
+                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                            break;  
+                        }
+                    case "subtr":
+                        {
+                            Double result = Double.parseDouble(left) - Integer.parseInt(right);
+                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                            break;   
+                        }
+                    default:
+                        this.printError(op,null,null, node);
+                        break;
+                        
+                } 
             }
-            else this.printError("soma",null,null, node);
+            else this.printError(op,null,null, node);
         }
-        else if(node.getLeft() instanceof AVarExp && node.getRight() instanceof AValorExp){ 
+        else if(getLeft instanceof AVarExp && getRight instanceof AValorExp){ 
             int k = findScopeVar(left);
             if(k != -1){
                 List<Object> getVarInTable = this.BLOCOS.get(k).findElement(left);
@@ -508,70 +678,286 @@ public class Semantico extends DepthFirstAdapter {
                     switch (getType(right)) {
                         case "integer":
                             {
-                                Integer result = Integer.parseInt(getVarInTable.get(1).toString().trim()) + Integer.parseInt(right);
-                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
-                               // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "integer" +")");
-                                break;
+                                switch(op){
+                                    case "multi":
+                                        {
+                                            Integer result = Integer.parseInt(getVarInTable.get(1).toString().trim()) * Integer.parseInt(right);
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break; 
+                                        }
+                                    case "div":
+                                        {   
+                                            Integer dividendo = Integer.parseInt(right);
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            }
+                                            Integer result = Integer.parseInt(getVarInTable.get(1).toString().trim()) / dividendo;
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break; 
+                                        }
+                                    case "soma":
+                                        {
+                                            Integer result = Integer.parseInt(getVarInTable.get(1).toString().trim()) + Integer.parseInt(right);
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break; 
+                                        }
+                                    case "subtr":
+                                        {
+                                            Integer result = Integer.parseInt(getVarInTable.get(1).toString().trim()) - Integer.parseInt(right);
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break; 
+                                        }
+                                    default:
+                                            this.printError(op,null,null, node);
+                                            break;
+                                }
+                               break;
                             }
                         case "real":
                             {
-                                Double result = Integer.parseInt(getVarInTable.get(1).toString().trim()) + Double.parseDouble(right);
-                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
-                                //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
-                                break;
-                            }
+                                switch(op){
+                                    case "multi":
+                                        {
+                                            Double result = Integer.parseInt(getVarInTable.get(1).toString().trim()) * Double.parseDouble(right);
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break; 
+                                        }
+                                    case "div":
+                                        {
+                                            Double dividendo = Double.parseDouble(right);
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            } 
+                                            Double result = Integer.parseInt(getVarInTable.get(1).toString().trim()) / dividendo;
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break; 
+                                        }
+                                    case "soma":
+                                        {
+                                            Double result = Integer.parseInt(getVarInTable.get(1).toString().trim()) + Double.parseDouble(right);
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break; 
+                                        }
+                                    case "subtr":
+                                        {
+                                            Double result = Integer.parseInt(getVarInTable.get(1).toString().trim()) - Double.parseDouble(right);
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break; 
+                                        }
+                                    default:
+                                            this.printError(op,null,null, node);
+                                            break;
+                                }
+                               break;
+                            } 
                         default:
-                            this.printError("soma",null,null, node);
+                            this.printError(op,null,null, node);
                             break;
                     }
                 }
                 else if(getVarInTable.get(4).equals("real")){
                     switch (getType(right)) {
-                        case "integer":
+                        case "integer": 
                             {
-                                Double result =Double.parseDouble(getVarInTable.get(1).toString().trim()) + Integer.parseInt(right);
-                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
-                               // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
-                                break;
-                            }
+                                switch(op){
+                                    case "multi":
+                                        {
+                                            Double result = Double.parseDouble(getVarInTable.get(1).toString().trim()) * Integer.parseInt(right);
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "div":
+                                        {
+                                            Integer dividendo = Integer.parseInt(right);
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            }
+                                            Double result = Double.parseDouble(getVarInTable.get(1).toString().trim()) / dividendo;
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString()), true);
+                                            // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " + op +", " + (this.escopo+1) + ", " + getType(result.toString()) +")");
+                                            break;
+                                        }
+                                    case "soma":
+                                        {
+                                            Double result = Double.parseDouble(getVarInTable.get(1).toString().trim()) + Integer.parseInt(right);
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " + op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "subtr":
+                                        {
+                                            Double result = Double.parseDouble(getVarInTable.get(1).toString().trim()) - Integer.parseInt(right);
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " + op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    default:
+                                            this.printError(op,null,null, node);
+                                            break;
+                                }
+                               break;
+                            }  
                         case "real":
                             {
-                                Double result = Double.parseDouble(getVarInTable.get(1).toString().trim()) + Double.parseDouble(right);
-                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
-                               // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
-                                break;
-                            }
+                                switch(op){
+                                    case "multi":
+                                        {
+                                            Double result = Double.parseDouble(getVarInTable.get(1).toString().trim()) * Double.parseDouble(right);
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "div":
+                                        {
+                                            Double dividendo = Double.parseDouble(right);
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            }
+                                            Double result = Double.parseDouble(getVarInTable.get(1).toString().trim()) / dividendo;
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "soma":
+                                        {
+                                            Double result = Double.parseDouble(getVarInTable.get(1).toString().trim()) + Double.parseDouble(right);
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "subtr":
+                                        {
+                                            Double result = Double.parseDouble(getVarInTable.get(1).toString().trim()) - Double.parseDouble(right);
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    default:
+                                            this.printError(op,null,null, node);
+                                            break;
+                                }
+                               break;
+                            } 
                         default:
-                            this.printError("soma",null,null, node);
+                            this.printError(op,null,null, node);
                             break;
                     }
-                } else this.printError("soma",null,null, node);
+                } else this.printError(op,null,null, node);
             }
             else this.printError("semDeclaracao", left, null, node);
             
         }
-        else if(node.getLeft() instanceof AValorExp && node.getRight() instanceof AVarExp){
+        else if(getLeft instanceof AValorExp && getRight instanceof AVarExp){
              int k = findScopeVar(right); 
             if(k != -1){
                  List<Object> getVarInTable = this.BLOCOS.get(k).findElement(right);
                  if(getVarInTable.get(4).equals("integer")){
                      switch (getType(left)) {
                          case "integer":
-                             {    
-                                 Integer result =  Integer.parseInt(left) + Integer.parseInt(getVarInTable.get(1).toString().trim());
-                                 this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
-                                // System.out.println("-->Inserir ("+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "integer" +")");
-                                 break;
-                             }
-                         case "real": 
                              {
-                                 Double result = Double.parseDouble(left) + Integer.parseInt(getVarInTable.get(1).toString().trim());
-                                 this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
-                               //  System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
-                                 break;
-                             }
+                                switch(op){
+                                    case "multi":
+                                        {
+                                            Integer result =  Integer.parseInt(left) * Integer.parseInt(getVarInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ("+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "div":
+                                        {
+                                            Integer dividendo = Integer.parseInt(getVarInTable.get(1).toString().trim());
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            }
+                                            Integer result =  Integer.parseInt(left) / dividendo;
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ("+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "soma":
+                                        {
+                                            Integer result =  Integer.parseInt(left) + Integer.parseInt(getVarInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, "integer", true);
+                                            // System.out.println("-->Inserir ("+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + "integer" +")");
+                                            break;
+                                        }
+                                    case "subtr":
+                                        {
+                                            Integer result =  Integer.parseInt(left) - Integer.parseInt(getVarInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            // System.out.println("-->Inserir ("+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    default:
+                                            this.printError(op,null,null, node);
+                                            break;
+                                }
+                               break;
+                            } 
+                         case "real":
+                             {
+                                switch(op){
+                                    case "multi":
+                                        {
+                                            Double result = Double.parseDouble(left) * Integer.parseInt(getVarInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "div":
+                                        {
+                                            Integer dividendo = Integer.parseInt(getVarInTable.get(1).toString().trim());
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            }
+                                            Double result = Double.parseDouble(left) / dividendo;
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "soma":
+                                        {
+                                            Double result = Double.parseDouble(left) + Integer.parseInt(getVarInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim())" +")");
+                                            break;
+                                        }
+                                    case "subtr":
+                                        {
+                                            Double result = Double.parseDouble(left) - Integer.parseInt(getVarInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    default:
+                                            this.printError(op,null,null, node);
+                                            break;
+                                }
+                               break;
+                            } 
                          default: 
-                             this.printError("soma", null, null, node);
+                             this.printError(op, null, null, node);
                              break;
                      }
                  }
@@ -579,27 +965,99 @@ public class Semantico extends DepthFirstAdapter {
                      switch (getType(left)) {
                          case "integer":
                              {
-                                 Double result =  Integer.parseInt(left) + Double.parseDouble(getVarInTable.get(1).toString());
-                                 this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
-                                // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
-                                 break;
-                             }
+                                switch(op){
+                                    case "multi":
+                                        {
+                                            Double result =  Integer.parseInt(left) * Double.parseDouble(getVarInTable.get(1).toString());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "div":
+                                        {
+                                            Double dividendo = Double.parseDouble(getVarInTable.get(1).toString());
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            }
+                                            Double result =  Integer.parseInt(left) / dividendo;
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "soma":
+                                        {
+                                            Double result =  Integer.parseInt(left) + Double.parseDouble(getVarInTable.get(1).toString());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "subtr":
+                                        {
+                                            Double result =  Integer.parseInt(left) - Double.parseDouble(getVarInTable.get(1).toString());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + "getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    default:
+                                            this.printError(op,null,null, node);
+                                            break;
+                                }
+                               break;
+                            } 
                          case "real":
                              {
-                                 Double result =  Double.parseDouble(left) + Double.parseDouble(getVarInTable.get(1).toString().trim());
-                                 this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
-                                // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
-                                 break;
-                             }
+                                switch(op){
+                                    case "multi":
+                                        {
+                                            Double result =  Double.parseDouble(left) * Double.parseDouble(getVarInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "div":
+                                       {
+                                            Double dividendo = Double.parseDouble(getVarInTable.get(1).toString().trim());
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            }
+                                            Double result =  Double.parseDouble(left) / dividendo;
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "soma":
+                                        {
+                                            Double result =  Double.parseDouble(left) + Double.parseDouble(getVarInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "subtr":
+                                        {
+                                            Double result =  Double.parseDouble(left) - Double.parseDouble(getVarInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    default:
+                                            this.printError(op,null,null, node);
+                                            break;
+                                }
+                               break;
+                            } 
                          default:
-                             this.printError("soma", null, null, node);
+                             this.printError(op, null, null, node);
                              break;
                      }
                  }
             }
             else this.printError("semDeclaracao", right, null, node); 
         }
-        else if(node.getLeft() instanceof AVarExp && node.getRight() instanceof AVarExp){
+        else if(getLeft instanceof AVarExp && getRight instanceof AVarExp){
             int i = findScopeVar(left);
             int j = findScopeVar(right);
             
@@ -611,20 +1069,92 @@ public class Semantico extends DepthFirstAdapter {
                     switch (getRightInTable.get(4).toString().trim()) {
                         case "integer":
                             {
-                                Integer result = Integer.parseInt(getLeftInTable.get(1).toString().trim()) + Integer.parseInt(getRightInTable.get(1).toString().trim());
-                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
-                                //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "integer" +")");
-                                break;
-                            }
+                                switch(op){
+                                    case "multi":
+                                        {
+                                            Integer result = Integer.parseInt(getLeftInTable.get(1).toString().trim()) * Integer.parseInt(getRightInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "div":
+                                       {
+                                            Integer dividendo = Integer.parseInt(getRightInTable.get(1).toString().trim());
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            }
+                                            Integer result = Integer.parseInt(getLeftInTable.get(1).toString().trim()) / Integer.parseInt(getRightInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "soma":
+                                        {
+                                            Integer result = Integer.parseInt(getLeftInTable.get(1).toString().trim()) + Integer.parseInt(getRightInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "subtr":
+                                        {
+                                            Integer result = Integer.parseInt(getLeftInTable.get(1).toString().trim()) - Integer.parseInt(getRightInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    default:
+                                            this.printError(op,null,null, node);
+                                            break;
+                                }
+                               break;
+                            } 
                         case "real":
                             {
-                                Double result = Integer.parseInt(getLeftInTable.get(1).toString().trim()) + Double.parseDouble(getRightInTable.get(1).toString().trim());
-                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
-                               // System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
-                                break;
-                            }
+                                switch(op){
+                                    case "multi":
+                                        {
+                                            Double result = Integer.parseInt(getLeftInTable.get(1).toString().trim()) * Double.parseDouble(getRightInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "div":
+                                       {
+                                           Double dividendo = Double.parseDouble(getRightInTable.get(1).toString().trim());
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            }
+                                            Double result = Integer.parseInt(getLeftInTable.get(1).toString().trim()) / Double.parseDouble(getRightInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "soma":
+                                        {
+                                            Double result = Integer.parseInt(getLeftInTable.get(1).toString().trim()) + Double.parseDouble(getRightInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "subtr":
+                                        {
+                                            Double result = Integer.parseInt(getLeftInTable.get(1).toString().trim()) - Double.parseDouble(getRightInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    default:
+                                            this.printError(op,null,null, node);
+                                            break;
+                                }
+                               break;
+                            }  
                         default:
-                            this.printError("soma", null, null, node);
+                            this.printError(op, null, null, node);
                             break;
                     }
                }
@@ -632,20 +1162,92 @@ public class Semantico extends DepthFirstAdapter {
                     switch (getRightInTable.get(4).toString().trim()) {
                         case "integer":
                             {
-                                Double result = Double.parseDouble(getLeftInTable.get(1).toString().trim()) + Integer.parseInt(getRightInTable.get(1).toString().trim());
-                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "integer", true);
-                                //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "integer" +")");
-                                break;
-                            }
+                                switch(op){
+                                    case "multi":
+                                        {
+                                            Double result = Double.parseDouble(getLeftInTable.get(1).toString().trim()) * Integer.parseInt(getRightInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "div":
+                                       {
+                                            Integer dividendo = Integer.parseInt(getRightInTable.get(1).toString().trim());
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            }
+                                            Double result = Double.parseDouble(getLeftInTable.get(1).toString().trim()) / dividendo;
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "soma":
+                                        {
+                                            Double result = Double.parseDouble(getLeftInTable.get(1).toString().trim()) + Integer.parseInt(getRightInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "subtr":
+                                        {
+                                            Double result = Double.parseDouble(getLeftInTable.get(1).toString().trim()) - Integer.parseInt(getRightInTable.get(1).toString().trim());
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    default:
+                                            this.printError(op,null,null, node);
+                                            break;
+                                }
+                               break;
+                            } 
                         case "real":
                             {
-                                Double result = Double.parseDouble(getLeftInTable.get(1).toString().trim()) + Double.parseDouble(getRightInTable.get(1).toString().trim()); 
-                                this.BLOCOS.get(escopo).insert(node.toString().trim(), result, "soma", escopo+1, "real", true);
-                                //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  "soma" +", " + (this.escopo+1) + ", " + "real" +")");
-                                break;
-                            }
+                                switch(op){
+                                    case "multi":
+                                        {
+                                            Double result = Double.parseDouble(getLeftInTable.get(1).toString().trim()) * Double.parseDouble(getRightInTable.get(1).toString().trim()); 
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "div":
+                                       {
+                                             Double dividendo = Double.parseDouble(getRightInTable.get(1).toString().trim()); 
+                                            if(dividendo == 0){
+                                                 this.printError("byZero", null, null, node);
+                                                
+                                                break;
+                                            }
+                                            Double result = Double.parseDouble(getLeftInTable.get(1).toString().trim()) / dividendo; 
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    case "soma":
+                                        {
+                                            Double result = Double.parseDouble(getLeftInTable.get(1).toString().trim()) + Double.parseDouble(getRightInTable.get(1).toString().trim()); 
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + "real" +")");
+                                            break;
+                                        }
+                                    case "subtr":
+                                        {
+                                            Double result = Double.parseDouble(getLeftInTable.get(1).toString().trim()) - Double.parseDouble(getRightInTable.get(1).toString().trim()); 
+                                            this.BLOCOS.get(escopo).insert(node.toString().trim(), result, op, escopo+1, getType(result.toString().trim()), true);
+                                            //System.out.println("-->Inserir ( "+ node.toString().trim() +", " + result + ", " +  op +", " + (this.escopo+1) + ", " + getType(result.toString().trim()) +")");
+                                            break;
+                                        }
+                                    default:
+                                            this.printError(op,null,null, node);
+                                            break;
+                                }
+                               break;
+                            } 
                         default:
-                            this.printError("soma", null, null, node);
+                            this.printError(op, null, null, node);
                             break;
                     }
                }
@@ -653,9 +1255,6 @@ public class Semantico extends DepthFirstAdapter {
             else if(i == -1) this.printError("semDeclaracao", left, null, node); 
             else this.printError("semDeclaracao", right, null, node); 
         }
-        else this.printError("soma",null,null, node);
-         
+        else this.printError(op,null,null, node); 
     }
-
-    
 }
