@@ -35,3 +35,4 @@ if [ -d  $analysis ] || [ -d $lexer ] || [ -d  $node ] || [ -d $parser ]; then
   echo 'diretórios movidos com sucesso' 
 fi
 
+

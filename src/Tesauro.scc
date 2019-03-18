@@ -82,7 +82,7 @@ bloco {-> bloco} =
     {bloco} start declaracao* comando* finish {-> New bloco.bloco([declaracao], [comando])};
 
 declaracao {-> declaracao} =
-     {tipo} tipo multi_id* id ppv {-> New declaracao.declaracao(tipo, [id, multi_id.id])}
+     {tipo} tipo multi_id* id ppv {-> New declaracao.declaracao(tipo, [multi_id.id,id])}
     |{unalt} unalterable tipo id inicialize? ppv {-> New declaracao.unalt(tipo,id,inicialize.valor)};
 
 //auxiliares
@@ -106,11 +106,11 @@ add_pos {-> number} =
     {add_pos} l_col number r_col {-> number};
 
 var {-> var} = 
-      {var_idpos} id add_pos+ {-> New var.var_idpos([add_pos.number])}
+      {var_idpos} id add_pos+ {-> New var.var_idpos(id,[add_pos.number])}
      |{id} id {-> New var.id(id)};
 
 unalt {-> unalt} =
-      {unalt_idpos} id add_pos+ {-> New unalt.unalt_idpos([add_pos.number])}
+      {unalt_idpos} id add_pos+ {-> New unalt.unalt_idpos(id,[add_pos.number])}
      |{id} id {-> New unalt.id(id)};
 
 valor {-> valor} =
@@ -122,8 +122,8 @@ valor {-> valor} =
 cmd {-> cmd} = 
      {cpy} var recebe exp ppv {-> New cmd.cpy(var,exp)}
     |{const} unalt recebe_const exp ppv {-> New cmd.const(unalt,exp)}
-    |{capture} capture l_par multi_var* var r_par ppv {-> New cmd.capture([var.var, multi_var.var])}
-    |{show} show l_par multi_exp* exp r_par ppv  {-> New cmd.show([exp.exp, multi_exp.exp])}
+    |{capture} capture l_par multi_var* var r_par ppv {-> New cmd.capture([multi_var.var,var.var])}
+    |{show} show l_par multi_exp* exp r_par ppv  {-> New cmd.show([multi_exp.exp,exp.exp])}
     |{as_long_as} [as1]:as long [as2]:as l_par exp r_par do cmd {-> New cmd.as_long_as(exp, cmd)}
     |{considering} considering var from [exp1]:exp to [exp2]:exp by [exp3]:exp do cmd {-> New cmd.considering(var,exp1.exp,exp2.exp,exp3.exp,cmd)}
     |{bloco} bloco {-> New cmd.bloco(bloco)};
@@ -137,7 +137,7 @@ comando {-> comando} =
 exp {-> exp} =
      {fator} fator {-> fator.exp}
     |{soma} [left]:exp plus [right]:fator              {-> New exp.soma(left.exp,right.exp)}
-    |{subtracao} [left]:exp minus [right]:fator               {-> New exp.subtr(left.exp,right.exp)} 
+    |{subtracao} [left]:exp minus [right]:fator        {-> New exp.subtr(left.exp,right.exp)} 
     |{negacao} [left]:exp not [right]:fator            {-> New exp.negacao(left.exp,right.exp)} 
     |{ou} [left]:exp or [right]:fator                  {-> New exp.ou(left.exp,right.exp)}
     |{xou} [left]:exp xor [right]:fator                {-> New exp.xou(left.exp,right.exp)}
@@ -146,7 +146,11 @@ exp {-> exp} =
     |{rec_const} [left]:exp recebe_const [right]:fator {-> New exp.rec_const(left.exp,right.exp)} 
     |{maior} [left]:exp greater [right]:fator          {-> New exp.maior(left.exp,right.exp)}
     |{menor} [left]:exp lesser[right]:fator            {-> New exp.menor(left.exp,right.exp)}
-    |{igual} [left]:exp twoequal [right]:fator         {-> New exp.igual(left.exp,right.exp)};
+    |{igual} [left]:exp twoequal [right]:fator         {-> New exp.igual(left.exp,right.exp)}
+    |{maior_ou_igual} [left]:exp goe [right]:fator     {-> New exp.maior_ou_igual(left.exp,right.exp)}
+    |{menor_ou_igual} [left]:exp loe [right]:fator     {-> New exp.menor_ou_igual(left.exp,right.exp)}
+    |{diff} [left]:exp diff [right]:fator              {-> New exp.diff(left.exp,right.exp)};
+
 
 fator {-> exp} =
      {termo} termo {-> termo.exp}
@@ -181,11 +185,11 @@ tipo =
     |{tipo_base} tipo_base;
  
 var = 
-     {var_idpos} [add_pos]:number+
+     {var_idpos} id [add_pos]:number+
     |{id} id;
 
 unalt = 
-     {unalt_idpos} [add_pos]:number+
+     {unalt_idpos} id [add_pos]:number+
     |{id} id;
 
 valor =
@@ -227,6 +231,8 @@ exp =
     |{rec_const} [left]:exp [right]:exp
     |{maior} [left]:exp [right]:exp
     |{menor} [left]:exp [right]:exp
-    |{igual} [left]:exp [right]:exp; 
-
+    |{igual} [left]:exp [right]:exp
+    |{maior_ou_igual} [left]:exp [right]:exp     
+    |{menor_ou_igual} [left]:exp [right]:exp     
+    |{diff} [left]:exp [right]:exp;               
 

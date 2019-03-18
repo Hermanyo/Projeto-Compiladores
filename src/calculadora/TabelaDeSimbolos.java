@@ -9,7 +9,7 @@ import java.util.List;
  * @author hermanyo
  */
 public class TabelaDeSimbolos {
-    private final int SIZE = 34213;
+    private final Integer SIZE = 2147483647; 
     private final int SHIFT = 4;  
     private final HashMap<Integer,List<Object>> symbolTable = new HashMap<>(); 
      

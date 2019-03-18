@@ -3,11 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/hermanyo/NetBeansProjects/calculadora/src/test/expressao.calc</file>
-            <file>file:/home/hermanyo/NetBeansProjects/calculadora/src/calculadora/analysis/DepthFirstAdapter.java</file>
-            <file>file:/home/hermanyo/NetBeansProjects/calculadora/src/calculadora/TabelaDeSimbolos.java</file>
-            <file>file:/home/hermanyo/NetBeansProjects/calculadora/src/calculadora/Semantico.java</file>
-            <file>file:/home/hermanyo/NetBeansProjects/calculadora/src/Tesauro.scc</file>
+            <file>file:/home/hermanyo/NetBeansProjects/projeto_compiladores/src/calculadora/Main.java</file>
+            <file>file:/home/hermanyo/NetBeansProjects/projeto_compiladores/src/test/expressao.calc</file>
+            <file>file:/home/hermanyo/NetBeansProjects/projeto_compiladores/src/Tesauro.scc</file>
+            <file>file:/home/hermanyo/NetBeansProjects/projeto_compiladores/src/calculadora/Semantico.java</file>
         </group>
     </open-files>
 </project-private>

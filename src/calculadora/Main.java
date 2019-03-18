@@ -2,7 +2,7 @@ package calculadora;
 import calculadora.parser.*;
 import calculadora.lexer.*;
 import calculadora.node.*;
-import java.io.*;
+import java.io.*; 
 
 public class Main
 {
@@ -10,8 +10,8 @@ public class Main
  {
   try
   {
-  String arquivo = "./src/test/expressao.calc";
-  
+  //String arquivo = "./src/test/expressao.calc";
+  String arquivo = "/home/hermanyo/NetBeansProjects/projeto_compiladores/dist/expressao.calc";
    Parser p =
     new Parser(
     new Lexer(
@@ -31,10 +31,35 @@ public class Main
    
    AnaliseSemantica.printSymbolTable();
    
+   String fileName = "Tesaurus"; 
+
+      try (Writer wout = new BufferedWriter(                      // Write everything to the outputfile.j
+              new OutputStreamWriter(
+                      new FileOutputStream(fileName+".rex"),"UTF8"))) {
+          wout.append( createOutput(AnaliseSemantica, fileName));
+      }  
   }
   catch(LexerException | ParserException | IOException e)
   {
    System.out.println(e.getMessage());
   }
  }
+  private static String createOutput(Semantico code, String fileName) {
+        int size = code.getBlOCOS().size();
+        return  ".bytecode 50.0\n"+
+                ".class public "+fileName+"\n"+
+                ".super java/lang/Object\n"+
+                ".method public <init>()V\n"+
+                    "\t.limit stack 1\n"+
+                    "\t.limit locals 1\n"+
+                    "\taload_0\n"+
+                    "\tinvokespecial java/lang/Object/<init>()V\n"+
+                    "\treturn\n"+
+                    ".end method\n"+
+                    "\t.method public static main([Ljava/lang/String;)V\n"+
+                    "\t.limit stack "+ code.scope()+"\n"+  "asasdassaddsdquhe12y8h1u2h87g78hu8syd78" +    
+                    "\t.limit locals "+size+"\n" +
+                    "\treturn\n"+
+                ".end method\n";
+    }
 }

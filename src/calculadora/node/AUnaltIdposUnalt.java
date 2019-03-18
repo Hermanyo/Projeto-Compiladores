@@ -8,6 +8,7 @@ import calculadora.analysis.*;
 @SuppressWarnings("nls")
 public final class AUnaltIdposUnalt extends PUnalt
 {
+    private TId _id_;
     private final LinkedList<TNumber> _addPos_ = new LinkedList<TNumber>();
 
     public AUnaltIdposUnalt()
@@ -16,9 +17,12 @@ public final class AUnaltIdposUnalt extends PUnalt
     }
 
     public AUnaltIdposUnalt(
+        @SuppressWarnings("hiding") TId _id_,
         @SuppressWarnings("hiding") List<?> _addPos_)
     {
         // Constructor
+        setId(_id_);
+
         setAddPos(_addPos_);
 
     }
@@ -27,6 +31,7 @@ public final class AUnaltIdposUnalt extends PUnalt
     public Object clone()
     {
         return new AUnaltIdposUnalt(
+            cloneNode(this._id_),
             cloneList(this._addPos_));
     }
 
@@ -34,6 +39,31 @@ public final class AUnaltIdposUnalt extends PUnalt
     public void apply(Switch sw)
     {
         ((Analysis) sw).caseAUnaltIdposUnalt(this);
+    }
+
+    public TId getId()
+    {
+        return this._id_;
+    }
+
+    public void setId(TId node)
+    {
+        if(this._id_ != null)
+        {
+            this._id_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._id_ = node;
     }
 
     public LinkedList<TNumber> getAddPos()
@@ -66,6 +96,7 @@ public final class AUnaltIdposUnalt extends PUnalt
     public String toString()
     {
         return ""
+            + toString(this._id_)
             + toString(this._addPos_);
     }
 
@@ -73,6 +104,12 @@ public final class AUnaltIdposUnalt extends PUnalt
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
+        if(this._id_ == child)
+        {
+            this._id_ = null;
+            return;
+        }
+
         if(this._addPos_.remove(child))
         {
             return;
@@ -85,6 +122,12 @@ public final class AUnaltIdposUnalt extends PUnalt
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
+        if(this._id_ == oldChild)
+        {
+            setId((TId) newChild);
+            return;
+        }
+
         for(ListIterator<TNumber> i = this._addPos_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)

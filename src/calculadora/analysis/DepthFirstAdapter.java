@@ -275,6 +275,10 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAVarIdposVar(AVarIdposVar node)
     {
         inAVarIdposVar(node);
+        if(node.getId() != null)
+        {
+            node.getId().apply(this);
+        }
         {
             List<TNumber> copy = new ArrayList<TNumber>(node.getAddPos());
             for(TNumber e : copy)
@@ -320,6 +324,10 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAUnaltIdposUnalt(AUnaltIdposUnalt node)
     {
         inAUnaltIdposUnalt(node);
+        if(node.getId() != null)
+        {
+            node.getId().apply(this);
+        }
         {
             List<TNumber> copy = new ArrayList<TNumber>(node.getAddPos());
             for(TNumber e : copy)
@@ -1119,5 +1127,80 @@ public class DepthFirstAdapter extends AnalysisAdapter
             node.getRight().apply(this);
         }
         outAIgualExp(node);
+    }
+
+    public void inAMaiorOuIgualExp(AMaiorOuIgualExp node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAMaiorOuIgualExp(AMaiorOuIgualExp node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAMaiorOuIgualExp(AMaiorOuIgualExp node)
+    {
+        inAMaiorOuIgualExp(node);
+        if(node.getLeft() != null)
+        {
+            node.getLeft().apply(this);
+        }
+        if(node.getRight() != null)
+        {
+            node.getRight().apply(this);
+        }
+        outAMaiorOuIgualExp(node);
+    }
+
+    public void inAMenorOuIgualExp(AMenorOuIgualExp node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAMenorOuIgualExp(AMenorOuIgualExp node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAMenorOuIgualExp(AMenorOuIgualExp node)
+    {
+        inAMenorOuIgualExp(node);
+        if(node.getLeft() != null)
+        {
+            node.getLeft().apply(this);
+        }
+        if(node.getRight() != null)
+        {
+            node.getRight().apply(this);
+        }
+        outAMenorOuIgualExp(node);
+    }
+
+    public void inADiffExp(ADiffExp node)
+    {
+        defaultIn(node);
+    }
+
+    public void outADiffExp(ADiffExp node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseADiffExp(ADiffExp node)
+    {
+        inADiffExp(node);
+        if(node.getLeft() != null)
+        {
+            node.getLeft().apply(this);
+        }
+        if(node.getRight() != null)
+        {
+            node.getRight().apply(this);
+        }
+        outADiffExp(node);
     }
 }

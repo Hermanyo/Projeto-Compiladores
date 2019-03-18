@@ -1,18 +1,29 @@
-code ordenar_numeros
+code ParOuImpar
 
 start
- integer a,b;  
- integer vector[5] k, p;  
- real n;
- symbol t; 
- 
- unalterable integer g=5;
- {unalterable symbol y = "aaaaaa";}
- unalterable integer vector[2] v;  
-  
-    a := g;
-    a := g - a;
 
-   show(a);
+unalterable symbol Oi = "Oi ";
+symbol nome;
+integer i;
 
-finish 
+nome := "";
+
+considering i from 0 to 10 by 1 do
+start
+  in case that (i % 2 == 0) do
+    start
+      show(i);
+      show(" eh par");
+  	finish
+  else
+    start
+          show(i);
+  	  show(" eh impar");
+    finish
+finish
+
+finish
+
+
+
+

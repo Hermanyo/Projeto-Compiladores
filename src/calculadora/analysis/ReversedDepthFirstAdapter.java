@@ -287,6 +287,10 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
                 e.apply(this);
             }
         }
+        if(node.getId() != null)
+        {
+            node.getId().apply(this);
+        }
         outAVarIdposVar(node);
     }
 
@@ -332,6 +336,10 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
             {
                 e.apply(this);
             }
+        }
+        if(node.getId() != null)
+        {
+            node.getId().apply(this);
         }
         outAUnaltIdposUnalt(node);
     }
@@ -1127,5 +1135,80 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
             node.getLeft().apply(this);
         }
         outAIgualExp(node);
+    }
+
+    public void inAMaiorOuIgualExp(AMaiorOuIgualExp node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAMaiorOuIgualExp(AMaiorOuIgualExp node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAMaiorOuIgualExp(AMaiorOuIgualExp node)
+    {
+        inAMaiorOuIgualExp(node);
+        if(node.getRight() != null)
+        {
+            node.getRight().apply(this);
+        }
+        if(node.getLeft() != null)
+        {
+            node.getLeft().apply(this);
+        }
+        outAMaiorOuIgualExp(node);
+    }
+
+    public void inAMenorOuIgualExp(AMenorOuIgualExp node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAMenorOuIgualExp(AMenorOuIgualExp node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAMenorOuIgualExp(AMenorOuIgualExp node)
+    {
+        inAMenorOuIgualExp(node);
+        if(node.getRight() != null)
+        {
+            node.getRight().apply(this);
+        }
+        if(node.getLeft() != null)
+        {
+            node.getLeft().apply(this);
+        }
+        outAMenorOuIgualExp(node);
+    }
+
+    public void inADiffExp(ADiffExp node)
+    {
+        defaultIn(node);
+    }
+
+    public void outADiffExp(ADiffExp node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseADiffExp(ADiffExp node)
+    {
+        inADiffExp(node);
+        if(node.getRight() != null)
+        {
+            node.getRight().apply(this);
+        }
+        if(node.getLeft() != null)
+        {
+            node.getLeft().apply(this);
+        }
+        outADiffExp(node);
     }
 }

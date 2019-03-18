@@ -5,17 +5,17 @@ package calculadora.node;
 import calculadora.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ADivisaoExp extends PExp
+public final class AMaiorOuIgualExp extends PExp
 {
     private PExp _left_;
     private PExp _right_;
 
-    public ADivisaoExp()
+    public AMaiorOuIgualExp()
     {
         // Constructor
     }
 
-    public ADivisaoExp(
+    public AMaiorOuIgualExp(
         @SuppressWarnings("hiding") PExp _left_,
         @SuppressWarnings("hiding") PExp _right_)
     {
@@ -29,7 +29,7 @@ public final class ADivisaoExp extends PExp
     @Override
     public Object clone()
     {
-        return new ADivisaoExp(
+        return new AMaiorOuIgualExp(
             cloneNode(this._left_),
             cloneNode(this._right_));
     }
@@ -37,7 +37,7 @@ public final class ADivisaoExp extends PExp
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseADivisaoExp(this);
+        ((Analysis) sw).caseAMaiorOuIgualExp(this);
     }
 
     public PExp getLeft()

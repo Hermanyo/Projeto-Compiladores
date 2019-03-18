@@ -57,6 +57,9 @@ public interface Analysis extends Switch
     void caseAMaiorExp(AMaiorExp node);
     void caseAMenorExp(AMenorExp node);
     void caseAIgualExp(AIgualExp node);
+    void caseAMaiorOuIgualExp(AMaiorOuIgualExp node);
+    void caseAMenorOuIgualExp(AMenorOuIgualExp node);
+    void caseADiffExp(ADiffExp node);
 
     void caseTReal(TReal node);
     void caseTInteger(TInteger node);

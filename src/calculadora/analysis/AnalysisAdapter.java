@@ -345,6 +345,24 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseAMaiorOuIgualExp(AMaiorOuIgualExp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAMenorOuIgualExp(AMenorOuIgualExp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseADiffExp(ADiffExp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseTReal(TReal node)
     {
         defaultCase(node);
