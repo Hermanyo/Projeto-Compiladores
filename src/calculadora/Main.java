@@ -6,10 +6,9 @@ import java.io.*;
 
 public class Main
 {
- public static void main(String[] args)
+ public static void main(String[] args) throws FileNotFoundException, ParserException, UnsupportedEncodingException, IOException, LexerException
  {
-  try
-  {
+   
   //String arquivo = "./src/test/expressao.calc";
   String arquivo = "/home/hermanyo/NetBeansProjects/projeto_compiladores/dist/expressao.calc";
    Parser p =
@@ -33,16 +32,13 @@ public class Main
    
    String fileName = "Tesaurus"; 
 
-      try (Writer wout = new BufferedWriter(                      // Write everything to the outputfile.j
+      Writer wout = new BufferedWriter( 
               new OutputStreamWriter(
-                      new FileOutputStream(fileName+".rex"),"UTF8"))) {
+              new FileOutputStream(fileName+".rex"),"UTF8")); 
           wout.append( createOutput(AnaliseSemantica, fileName));
-      }  
-  }
-  catch(LexerException | ParserException | IOException e)
-  {
-   System.out.println(e.getMessage());
-  }
+          wout.close();
+      
+   
  }
   private static String createOutput(Semantico code, String fileName) {
         int size = code.getBlOCOS().size();

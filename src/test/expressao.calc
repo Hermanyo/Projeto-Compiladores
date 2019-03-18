@@ -1,29 +1,18 @@
-code ParOuImpar
-
+code fibonacci
 start
+	integer i;
+	integer j;
+	integer k;
+	integer t;
+	integer n;
 
-unalterable symbol Oi = "Oi ";
-symbol nome;
-integer i;
-
-nome := "";
-
-considering i from 0 to 10 by 1 do
-start
-  in case that (i % 2 == 0) do
-    start
-      show(i);
-      show(" eh par");
-  	finish
-  else
-    start
-          show(i);
-  	  show(" eh impar");
-    finish
-finish
+	capture(n);
+	as long as (k <= n) do  
+	start
+		t := i + j;
+		i := j;
+		j := t;
+		k := k + 1;
+	finish
 
 finish
-
-
-
-

@@ -21,7 +21,7 @@ public class Semantico extends DepthFirstAdapter {
              if(!symbolTable1.getSymbolTable().entrySet().isEmpty()) System.out.println("Escopo: " + i++);
              symbolTable1.getSymbolTable().entrySet().forEach(System.out::println); 
         }
-    }
+    } 
     public ArrayList<TabelaDeSimbolos>getBlOCOS(){
         return this.BLOCOS;
     }
@@ -45,7 +45,7 @@ public class Semantico extends DepthFirstAdapter {
             return "symbol";
     }
     public void printError(String error, String id_ou_tipo, String exp,Node node){
-        for(int i = 0; i < 80*300; i++)  System.out.print("\b"); 
+        for(int i = 0; i < 80*300; i++)  System.out.print("\b"); //isso daqui limpa o terminal abaixo, parando no erro
              id_ou_tipo = id_ou_tipo.split(" ")[0];
         switch(error){
             case "declaracao":
@@ -62,7 +62,7 @@ public class Semantico extends DepthFirstAdapter {
                 System.err.println("\""+ id_ou_tipo.trim() + "\"" + " na linha "+ tm.getLine(node) +" não é um tipo existente.");
             break;
             case "constante":
-                System.err.println("Erro: variável \"" + id_ou_tipo.trim() + "\" na linha " + tm.getLine(node) + " é \"unalterable.\"");
+                System.err.println("Erro: variável \"" + id_ou_tipo.trim() + "\" na linha " + tm.getLine(node) + " é \"unalterable\".");
             break;
             case "expressao":
                 System.err.println("Erro: a expressão na linha " + tm.getLine(node) + " não é válida.");
@@ -148,7 +148,7 @@ public class Semantico extends DepthFirstAdapter {
                    boolean flagError = false;
                    if(!this.BLOCOS.get(escopo).verify(e.toString().trim())){ 
                    for(int k=1;k<size+1;k++){
-                       if(this.BLOCOS.get(escopo).insert(e.toString().trim() + " "+k, "0", "vet", escopo, tipoSplited[0], true)){
+                       if(this.BLOCOS.get(escopo).insert(e.toString().trim() + " "+k, "0", "vet", (this.escopo+1), tipoSplited[0], true)){
                              System.out.println("-->Inserir ( "+ e.toString().trim() + " "+ k +", " + "0" + ", " +"vet"+", " + (this.escopo+1) + ", " + tipoSplited[0] +")");      flagError = false;
                        }
                        else flagError = true;
@@ -160,7 +160,7 @@ public class Semantico extends DepthFirstAdapter {
                         this.printError("declaracao", e.toString().trim(), null, node);  
                     }
                }
-               else if(this.BLOCOS.get(escopo).insert(e.toString().trim(), "0",  "var", escopo, tipoSplited[0], true)){
+               else if(this.BLOCOS.get(escopo).insert(e.toString().trim(), "0",  "var", (this.escopo+1), tipoSplited[0], true)){
                    System.out.println("-->Inserir ( "+ e.toString().trim() +", " + "0" + ", " +"var"+", " + (this.escopo+1) + ", " + tipoSplited[0] +")"); 
                }
                else this.printError("declaracao", e.toString().trim(), null, node);
@@ -233,7 +233,7 @@ public class Semantico extends DepthFirstAdapter {
                      }
                      else this.printError("tipo", id, inicialize, node); 
               }
-              else if(node.getInicialize() instanceof PValor){    
+              else if(node.getInicialize() instanceof PValor){
                     if(getType(inicialize).equals("integer") || getType(inicialize).equals("real")){ 
                         if(null == tipo.toString().trim()) this.printError("tipo", id, inicialize, node); 
                         else switch (tipo.toString().trim()) { 
@@ -288,14 +288,23 @@ public class Semantico extends DepthFirstAdapter {
       boolean defVar; 
       boolean printError = false; 
       int i = findScopeVar(var);      
-      defVar = i > -1; 
-      String[] categ = null;
-      if(defVar) categ = this.BLOCOS.get(i).findElement(var).get(2).toString().split(" ");
+      defVar = i > -1;
+      List<Object> getVarInTable = null;  
+      String getVarCategInTable = null;
+      String getVarTypeInTable = null;
+      
+       if(defVar){ 
+                   getVarInTable = this.BLOCOS.get(i).findElement(var);
+                   getVarCategInTable = (getVarInTable.get(2) + " ").trim();
+                   getVarTypeInTable = (getVarInTable.get(4) + " ").trim(); 
+               }
          
      if(!defVar) 
          this.printError("semDeclaracao", var, null, node); 
-     else if("unalt".equals(categ[0]))
-         this.printError("constante", var, null, node);  
+     else if("unalt".equals(getVarCategInTable.split(" ")[0]) && !getVarInTable.get(1).toString().trim().equals("0")){
+         this.printError("constante", var, null, node);
+         //System.err.println("Erro: " + var + "na linha "+tm.getLine(node)+" já foi inicializada.");
+     }
      else{
          
                boolean defExp = false; 
@@ -303,18 +312,11 @@ public class Semantico extends DepthFirstAdapter {
                
                defExp = j > -1;
                
-               List<Object> getVarInTable = null;
-               List<Object> getExpInTable = null; 
-               String getVarCategInTable = null;
-               String getVarTypeInTable = null;
+               List<Object> getExpInTable = null;
                String getExpTypeInTable = null;
                String getExpValueInTable = "0";
                
-               if(defVar){ 
-                   getVarInTable = this.BLOCOS.get(i).findElement(var);
-                   getVarCategInTable = (getVarInTable.get(2) + " ").trim();
-                   getVarTypeInTable = (getVarInTable.get(4) + " ").trim(); 
-               }  
+               
                if(defExp){
                     getExpInTable = this.BLOCOS.get(j).findElement(exp);
                     getExpTypeInTable = (getExpInTable.get(4) + " ").trim();
@@ -437,6 +439,11 @@ public class Semantico extends DepthFirstAdapter {
         if(!(node.getExp() instanceof PExp)){
             this.printError("expressao", null, null, node);  
         }
+//        else if(node.getExp() instanceof AValorExp){ 
+//            while(Boolean.parseBoolean(node.getExp().parent().toString().trim())){
+//                node.getCmd();
+//            }
+        //}
     } 
      
     @Override
