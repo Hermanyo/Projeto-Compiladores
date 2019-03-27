@@ -9,8 +9,8 @@ public class Main
  public static void main(String[] args) throws FileNotFoundException, ParserException, UnsupportedEncodingException, IOException, LexerException
  {
    
-  //String arquivo = "./src/test/expressao.calc";
-  String arquivo = "/home/hermanyo/NetBeansProjects/projeto_compiladores/dist/expressao.calc";
+   String arquivo = "./src/test/expressao.calc";
+  //String arquivo = "/home/hermanyo/NetBeansProjects/projeto_compiladores/dist/expressao.calc";
    Parser p =
     new Parser(
     new Lexer(
@@ -57,5 +57,5 @@ public class Main
                     "\t.limit locals "+size+"\n" +
                     "\treturn\n"+
                 ".end method\n";
-    }
+    } 
 }

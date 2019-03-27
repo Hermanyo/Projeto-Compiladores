@@ -10,6 +10,6 @@
 .end method
 	.method public static main([Ljava/lang/String;)V
 	.limit stack -1
-asasdassaddsdquhe12y8h1u2h87g78hu8syd78	.limit locals 2
+asasdassaddsdquhe12y8h1u2h87g78hu8syd78	.limit locals 1
 	return
 .end method

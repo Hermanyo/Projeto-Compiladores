@@ -38,7 +38,11 @@ public class TabelaDeSimbolos {
          
          List<Object> columns = new ArrayList<>();
          int checksum = this.hash(id);
-         columns.add(id.trim()); 
+         columns.add(id.trim());
+         
+         if("true".equals(value.toString().trim())) value = "1";
+          else if("false".equals(value.toString().trim())) value = "0";
+         
          columns.add(value); 
          columns.add(categ.trim());
          columns.add(scope);

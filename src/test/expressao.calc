@@ -1,18 +1,12 @@
-code fibonacci
-start
-	integer i;
-	integer j;
-	integer k;
-	integer t;
-	integer n;
+code ordenar_numeros
 
-	capture(n);
-	as long as (k <= n) do  
-	start
-		t := i + j;
-		i := j;
-		j := t;
-		k := k + 1;
-	finish
+start   
+unalterable integer qtd = 8;
 
-finish
+integer aux;
+unalterable integer vector[qtd] vet;
+integer i, j; 
+
+capture(vet[qtd]);
+
+finish 
